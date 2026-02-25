@@ -12,17 +12,15 @@ if (typeof window !== "undefined") {
 
 export default function Scene3() {
   const containerRef = useRef();
-  const scrollContainerRef = useRef();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    // Fetch featured products from our new API
     async function fetchProducts() {
       try {
         const res = await fetch('/api/products?featured=true');
         if (res.ok) {
           const data = await res.json();
-          setProducts(data.slice(0, 4)); // Only show top 4
+          setProducts(data.slice(0, 4));
         }
       } catch (e) {
         console.error("Failed to load products for homepage", e);
@@ -31,27 +29,28 @@ export default function Scene3() {
     fetchProducts();
   }, []);
 
+  // Simple fade-in on scroll — no pin, no scrub, no horizontal scroll jank
   useEffect(() => {
     if (products.length === 0) return;
 
     const ctx = gsap.context(() => {
-      // Horizontal scroll animation
-      const cards = gsap.utils.toArray(`.${styles.productCard}`);
-      
-      gsap.to(cards, {
-        xPercent: -100 * (cards.length - 1),
-        ease: "none",
-        scrollTrigger: {
-          trigger: scrollContainerRef.current,
-          pin: true,
-          scrub: 1,
-          snap: 1 / (cards.length - 1),
-          start: "center center",
-          end: () => "+=" + scrollContainerRef.current.offsetWidth
+      gsap.fromTo(
+        `.${styles.productCard}`,
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.12,
+          duration: 0.7,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 75%",
+          },
         }
-      });
-      
+      );
     }, containerRef);
+
     return () => ctx.revert();
   }, [products]);
 
@@ -66,17 +65,20 @@ export default function Scene3() {
         </a>
       </div>
 
-      <div ref={scrollContainerRef} className={styles.scrollContainer}>
+      {/* Native CSS scroll-snap — GPU-accelerated, zero JS scroll cost */}
+      <div className={styles.scrollContainer}>
         <div className={styles.cardsWrapper}>
-          
           {products.map((p) => (
-            <Link href={`/products/${p.id}`} key={p.id} className={styles.productCard} style={{ textDecoration: 'none' }}>
+            <Link
+              href={`/products/${p.id}`}
+              key={p.id}
+              className={styles.productCard}
+              style={{ textDecoration: "none" }}
+            >
               <div className={styles.cardTag}>{p.category}</div>
-              
               <div className={styles.imagePlaceholder}>
                 <div className={styles.jewel}></div>
               </div>
-              
               <div className={styles.cardFooter}>
                 <div className={styles.cardInfo}>
                   <h3 className={styles.cardName}>{p.name}</h3>
@@ -86,7 +88,6 @@ export default function Scene3() {
               </div>
             </Link>
           ))}
-          
         </div>
       </div>
     </section>

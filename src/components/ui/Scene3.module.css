@@ -44,14 +44,25 @@
 
 .scrollContainer {
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: auto;
+  /* native scroll-snap — zero JS cost, GPU-accelerated */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: 1rem;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .cardsWrapper {
   display: flex;
   gap: 2rem;
-  width: fit-content;
+  width: max-content;
+  padding: 0 0.5rem;
 }
+
 
 .productCard {
   width: 300px;
@@ -62,6 +73,9 @@
   flex-direction: column;
   color: #1a0f0a;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  scroll-snap-align: start;   /* native snap target */
+  flex-shrink: 0;
+  opacity: 0; /* GSAP will fade in */
 }
 
 .cardTag {
