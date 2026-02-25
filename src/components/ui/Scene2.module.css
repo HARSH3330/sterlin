@@ -1,0 +1,212 @@
+.scene {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding: 5rem 4rem;
+  background-color: var(--bg-dark);
+  z-index: 2;
+  border-top: 1px solid rgba(255,255,255,0.05); /* very subtle top border */
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+  height: 100%;
+  align-items: center;
+}
+
+.textColumn {
+  padding-right: 2rem;
+}
+
+.textContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.avatars {
+  display: flex;
+  gap: -10px;
+  margin-bottom: 1rem;
+}
+
+.avatar1, .avatar2 {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-dark);
+  background: radial-gradient(circle at center, #c9a84c, #996515);
+}
+.avatar2 {
+  margin-left: -15px;
+  background: radial-gradient(circle at center, #f5f0e8, #adadad);
+}
+
+.title {
+  font-size: 2.5rem;
+  line-height: 1.2;
+}
+
+.description {
+  font-size: 0.9rem;
+  color: rgba(245, 240, 232, 0.7);
+  max-width: 80%;
+  line-height: 1.6;
+}
+
+.link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+  margin-top: 1rem;
+  position: relative;
+  width: fit-content;
+  text-decoration: none;
+}
+.link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--text-primary);
+  transition: width 0.3s;
+}
+.link:hover::after {
+  width: 0%;
+}
+
+.imageColumn {
+  height: 600px;
+  display: flex;
+  justify-content: center;
+}
+
+.imageCard {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--bg-darker);
+}
+
+.primaryCard {
+  background: linear-gradient(to bottom, rgba(200, 100, 50, 0.4), var(--bg-darker));
+}
+
+.playButtonWrapper {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  width: 50px;
+  height: 50px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.playButton {
+  color: #000;
+  margin-left: 4px; /* optical center */
+  font-size: 1rem;
+}
+
+.modelPlaceholder {
+  width: 100%;
+  height: 80%;
+  position: absolute;
+  bottom: 0;
+  background: radial-gradient(circle at top, rgba(255,150,100,0.1), transparent);
+}
+
+.cardLabel {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.secondaryCard {
+  background: var(--bg-darker);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 10;
+}
+
+.secondaryTitle {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.circleArrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.objectPlaceholder {
+  flex: 1;
+  position: relative;
+  margin-top: 2rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.rock {
+  width: 80%;
+  height: 60%;
+  background: #333;
+  clip-path: polygon(20% 0%, 80% 10%, 100% 100%, 0% 100%);
+  position: relative;
+}
+
+.earring {
+  position: absolute;
+  top: 30%;
+  width: 40px;
+  height: 40px;
+  border: 6px solid var(--gold-primary);
+  border-radius: 50%;
+  transform: perspective(200px) rotateX(40deg) rotateY(-20deg);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .scene { padding: 4rem 2.5rem; }
+  .title { font-size: 2rem; }
+  .imageColumn { height: 450px; }
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .imageColumn { height: 300px; }
+  .textColumn { padding-right: 0; }
+}
+

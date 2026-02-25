@@ -1,0 +1,138 @@
+.container {
+  padding: 8rem 6rem 4rem;
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+}
+
+.header {
+  text-align: center;
+  padding-bottom: 5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 5rem;
+}
+
+.eyebrow {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 5rem;
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: rgba(245, 240, 232, 0.6);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+/* Brands Grid */
+.brandsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.brandCard {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 4rem;
+  padding: 4rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+.brandCard:hover {
+  background: rgba(255, 255, 255, 0.02);
+  padding-left: 1rem;
+}
+
+.brandLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: radial-gradient(circle, var(--bg-accent), var(--bg-darker));
+}
+
+.logoInitial {
+  font-family: var(--font-accent);
+  font-size: 4rem;
+  color: var(--gold-primary);
+  font-style: italic;
+}
+
+.brandInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.brandMeta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.brandTag {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  color: var(--text-secondary);
+}
+
+.brandOrigin {
+  font-size: 0.75rem;
+  color: rgba(245, 240, 232, 0.5);
+  letter-spacing: 0.05em;
+}
+
+.brandName {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.brandSpecialty {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.brandDesc {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: rgba(245, 240, 232, 0.65);
+  max-width: 520px;
+  margin-top: 0.5rem;
+}
+
+.shopLink {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0.5rem;
+  width: fit-content;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  transition: color 0.2s;
+}
+
+.shopLink:hover {
+  color: var(--gold-primary);
+  border-color: var(--gold-primary);
+}

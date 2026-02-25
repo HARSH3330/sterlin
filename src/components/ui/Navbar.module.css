@@ -1,0 +1,92 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 2rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  mix-blend-mode: difference;
+  color: #fff;
+}
+
+.logo a {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.links {
+  display: flex;
+  gap: 3rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.links a {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.links a:hover {
+  color: var(--gold-primary);
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.cartIcon {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.cartIcon:hover {
+  color: var(--gold-primary);
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 30px;
+}
+
+.hamburger span {
+  display: block;
+  height: 1px;
+  background-color: currentColor;
+  transition: all 0.3s ease;
+}
+
+.hamburger span:first-child {
+  width: 100%;
+}
+
+.hamburger span:last-child {
+  width: 60%;
+  align-self: flex-end;
+}
+
+.hamburger:hover span:last-child {
+  width: 100%;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar { padding: 1.5rem; }
+  .links { display: none; } /* hidden on mobile; hamburger menu would take over */
+  .menu { gap: 1rem; }
+}

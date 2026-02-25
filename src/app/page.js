@@ -1,66 +1,83 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import styles from "./page.module.css";
+import Scene2 from "@/components/ui/Scene2";
+import Scene3 from "@/components/ui/Scene3";
+import Scene4 from "@/components/ui/Scene4";
+
+// Lazy-load the 3D canvas – Three.js is large; this creates a separate chunk
+// and skips SSR entirely (WebGL is not available server-side)
+const HeroCanvas = dynamic(() => import("@/components/ui/HeroCanvas"), {
+  ssr: false,
+  loading: () => null, // render nothing while 3D loads – text appears instantly
+});
+
+// Register ScrollTrigger only on client
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function Home() {
+  const containerRef = useRef();
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.to(`.${styles.heroText}`, {
+        y: -100,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: `.${styles.hero}`,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div ref={containerRef} className={styles.container}>
+      {/* SCENE 1: THE HERO */}
+      <section className={styles.hero}>
+        <div className={styles.heroTextWrapper}>
+          <div className={styles.heroText}>
+            <p className={styles.eyebrow}>EXQUISITE CRAFTSMANSHIP</p>
+            <h1 className={styles.title}>
+              <span className="font-accent">Unleash</span> the <br />
+              shining <span className={styles.spacer}> </span> beauty
+            </h1>
+            <div className={styles.ctaWrapper}>
+              <button className={styles.ctaButton}>
+                Find a Store <span className={styles.arrow}>↗</span>
+              </button>
+            </div>
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Lazy-loaded 3D Canvas */}
+        <div className={styles.canvasContainer}>
+          <HeroCanvas />
         </div>
-      </main>
+
+        <div className={styles.heroCard}>
+          <p className={styles.cardEyebrow}>Premium Grade</p>
+          <p className={styles.cardTitle}>Gold Plated Ring</p>
+          <div className={styles.cardImagePlaceholder}>
+            <div className={styles.ringBox}></div>
+          </div>
+        </div>
+      </section>
+
+      <Scene2 />
+      <Scene3 />
+      <Scene4 />
     </div>
   );
 }
