@@ -5,6 +5,9 @@ const crypto = require('crypto');
 
 const dbPath = path.resolve(__dirname, 'dev.db');
 const db = new Database(dbPath);
+
+// Load env vars if needed (Next.js usually handles this, but standalone script might not)
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
@@ -139,14 +142,17 @@ const products = [
   { id: "col-2", name: "Midnight Star Necklace", description: "Part of the Celestial Collection — a star pendant in dark oxidised silver with a diamond-cut centre.", price: 7299, category: "Collections", subcategory: "celestial", gender: "unisex", material: "Sterling Silver", featured: 1, isNew: 1 },
 ];
 
-// ── SEED ADMIN USER ────────────────────────────────────────
-// Password: admin123 (bcryptjs hash)
+// Password: admin123 (or from .env)
 const adminUser = {
   id: "admin-001",
   name: "Sterlin Admin",
-  email: "admin@sterlin.com",
-  // Pre-hashed password for "admin123" — generated with bcryptjs
-  password: "$2a$10$8KzQ6D5U8FvL3o5nZmPxE.YqJx8GQ3kTqMVvOYk3CvX5aHrGUqWri",
+  email: process.env.ADMIN_EMAIL || "admin@sterlin.com",
+  // Pre-hashed password for "admin123" if not provided in env
+  // If we change password in env, we'd need to hash it.
+  // For the seed, we either use the pre-hashed one or we should hash it now.
+  password: process.env.ADMIN_PASSWORD 
+    ? require('bcryptjs').hashSync(process.env.ADMIN_PASSWORD, 10) 
+    : "$2b$10$qZng2wp9W/4luM4/nHQY5O1aETapucvsZ4lZXLNyEKTXaDb5", 
   role: "admin",
   createdAt: new Date().toISOString(),
 };

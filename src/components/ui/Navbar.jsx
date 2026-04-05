@@ -48,7 +48,12 @@ export default function Navbar() {
           </button>
           
           {mounted && user ? (
-            <Link href="/account" className={styles.accountLink}>ACCOUNT</Link>
+            <>
+              {user.role === 'admin' && (
+                <Link href="/admin" className={styles.accountLink}>ADMIN</Link>
+              )}
+              <Link href="/account" className={styles.accountLink}>ACCOUNT</Link>
+            </>
           ) : (
             <Link href="/login" className={styles.accountLink}>LOGIN</Link>
           )}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 import styles from "./SidebarMenu.module.css";
 
 const menuItems = [
@@ -78,6 +79,7 @@ const menuItems = [
 
 export default function SidebarMenu({ isOpen, onClose }) {
   const [openItems, setOpenItems] = useState({});
+  const { user } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -156,6 +158,19 @@ export default function SidebarMenu({ isOpen, onClose }) {
                 )}
               </li>
             ))}
+            
+            {user?.role === 'admin' && (
+              <li className={styles.menuItemWrapper}>
+                <Link 
+                  href="/admin" 
+                  className={`${styles.menuLink} ${styles.adminLink}`} 
+                  onClick={onClose}
+                  style={{ color: '#d4af37', fontWeight: 'bold', borderTop: '1px solid #333', marginTop: '10px', paddingTop: '10px' }}
+                >
+                  Admin Panel
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>
