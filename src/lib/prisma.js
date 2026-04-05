@@ -1,9 +1,6 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { getDb, db as _db } from './db';
 
-const dbPath = path.resolve(process.cwd(), 'prisma/dev.db');
-
-export const db = new Database(dbPath, { 
-  readonly: true,
-  fileMustExist: true 
-});
+// Re-export from the single source of truth (db.js)
+// This ensures all parts of the app use the same read-write connection pool
+export const db = _db;
+export { getDb };

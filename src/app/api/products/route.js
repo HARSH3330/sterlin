@@ -7,6 +7,8 @@ export async function GET(request) {
     const category = searchParams.get("category");
     const material = searchParams.get("material");
     const featured = searchParams.get("featured");
+    const gender = searchParams.get("gender");
+    const q = searchParams.get("q");
 
     let queryStr = "SELECT * FROM Product WHERE 1=1";
     const params = [];
@@ -19,8 +21,16 @@ export async function GET(request) {
       queryStr += " AND material = ?";
       params.push(material);
     }
+    if (gender) {
+      queryStr += " AND gender = ?";
+      params.push(gender);
+    }
     if (featured === "true") {
       queryStr += " AND featured = 1";
+    }
+    if (q) {
+      queryStr += " AND (name LIKE ? OR description LIKE ?)";
+      params.push(`%${q}%`, `%${q}%`);
     }
 
     queryStr += " ORDER BY createdAt DESC";
@@ -28,18 +38,20 @@ export async function GET(request) {
     const stmt = db.prepare(queryStr);
     const products = stmt.all(...params);
 
-    // Convert boolean back to standard JSON format if needed (SQLite stores 1/0)
     const converted = products.map(p => ({
       ...p,
-      featured: p.featured === 1
+      featured: p.featured === 1,
+      isNew: p.isNew === 1,
+      images: JSON.parse(p.images || "[]")
     }));
 
     return NextResponse.json(converted);
   } catch (error) {
     console.error("Failed to fetch products:", error);
     return NextResponse.json(
-      { error: "Failed to fetch products from the database" },
+      { error: "Failed to fetch products" },
       { status: 500 }
     );
   }
 }
+

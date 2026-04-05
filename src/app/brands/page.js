@@ -2,8 +2,8 @@ import styles from "./page.module.css";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Brands | Sterlin+",
-  description: "Discover the world's finest jewellery brands, curated exclusively by Sterlin+.",
+  title: "Brands | Sterly",
+  description: "Discover the world's finest jewellery brands, curated exclusively by Sterly.",
 };
 
 const brands = [

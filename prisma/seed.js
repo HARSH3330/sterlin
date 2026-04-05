@@ -1,130 +1,193 @@
-// seed.js  –  uses better-sqlite3 to match the runtime library
+// seed.js — Sterlin full database seed
 const Database = require('better-sqlite3');
 const path = require('path');
 const crypto = require('crypto');
 
 const dbPath = path.resolve(__dirname, 'dev.db');
 const db = new Database(dbPath);
-
-// Enable WAL for better performance
 db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
 
-// Create Product table if it doesn't exist
+// ── DROP & CREATE TABLES ───────────────────────────────────
+db.exec(`DROP TABLE IF EXISTS Wishlist;`);
+db.exec(`DROP TABLE IF EXISTS "Order";`);
+db.exec(`DROP TABLE IF EXISTS User;`);
+db.exec(`DROP TABLE IF EXISTS Product;`);
+
 db.exec(`
-  CREATE TABLE IF NOT EXISTS Product (
+  CREATE TABLE Product (
     id          TEXT PRIMARY KEY,
     name        TEXT NOT NULL,
     description TEXT NOT NULL,
     price       REAL NOT NULL,
     category    TEXT NOT NULL,
+    subcategory TEXT NOT NULL DEFAULT '',
+    gender      TEXT NOT NULL DEFAULT 'unisex',
     material    TEXT NOT NULL,
     images      TEXT NOT NULL DEFAULT '[]',
     featured    INTEGER NOT NULL DEFAULT 0,
+    isNew       INTEGER NOT NULL DEFAULT 0,
+    stock       INTEGER NOT NULL DEFAULT 50,
     createdAt   TEXT NOT NULL
   );
 `);
 
-const defaultProducts = [
-  {
-    id: "1",
-    name: "Crystal Pear Ring",
-    description: "A stunning pear-cut crystal set in a premium gold-plated band. Perfect for any occasion.",
-    price: 96,
-    category: "Rings",
-    material: "Gold Plated",
-    images: "[]",
-    featured: 1,
-  },
-  {
-    id: "2",
-    name: "Molten Hoops in Gold",
-    description: "Hand-crafted molten textures in solid 18K gold. Perfect for everyday elegance.",
-    price: 184,
-    category: "Earrings",
-    material: "18K Solid Gold",
-    images: "[]",
-    featured: 1,
-  },
-  {
-    id: "3",
-    name: "Orbit Crystal Cuff",
-    description: "An elegant cuff featuring orbiting crystal accents and a smooth, polished finish.",
-    price: 139,
-    category: "Bracelets",
-    material: "Gold Plated",
-    images: "[]",
-    featured: 1,
-  },
-  {
-    id: "4",
-    name: "Horseshoe Pendant",
-    description: "A symbol of luck, encrusted with fine details on a delicate chain. A true conversation piece.",
-    price: 245,
-    category: "Necklaces",
-    material: "18K Solid Gold",
-    images: "[]",
-    featured: 0,
-  },
-  {
-    id: "5",
-    name: "Emerald Cut Signet",
-    description: "Bold, heavy solid gold signet ring with an emerald cut face. A statement of prestige.",
-    price: 320,
-    category: "Rings",
-    material: "18K Solid Gold",
-    images: "[]",
-    featured: 1,
-  },
-  {
-    id: "6",
-    name: "Diamond Tennis Bracelet",
-    description: "Classic continuous diamond line set in 14K white gold. Timeless luxury for every wrist.",
-    price: 890,
-    category: "Bracelets",
-    material: "White Gold",
-    images: "[]",
-    featured: 1,
-  },
-  {
-    id: "7",
-    name: "Teardrop Pearl Earrings",
-    description: "Freshwater pearls dropping elegantly from solid gold hooks. Effortlessly refined.",
-    price: 210,
-    category: "Earrings",
-    material: "18K Solid Gold",
-    images: "[]",
-    featured: 0,
-  },
-  {
-    id: "8",
-    name: "Vintage Filigree Choker",
-    description: "Intricate filigree work inspired by vintage regal designs. A true heirloom piece.",
-    price: 450,
-    category: "Necklaces",
-    material: "Sterling Silver",
-    images: "[]",
-    featured: 0,
-  },
-];
-
-console.log("Start seeding ...");
-
-// Clear existing products
-db.prepare("DELETE FROM Product").run();
-
-const insert = db.prepare(`
-  INSERT INTO Product (id, name, description, price, category, material, images, featured, createdAt)
-  VALUES (@id, @name, @description, @price, @category, @material, @images, @featured, @createdAt)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS User (
+    id          TEXT PRIMARY KEY,
+    name        TEXT NOT NULL,
+    email       TEXT NOT NULL UNIQUE,
+    password    TEXT NOT NULL,
+    role        TEXT NOT NULL DEFAULT 'customer',
+    createdAt   TEXT NOT NULL
+  );
 `);
 
-const insertMany = db.transaction((products) => {
-  for (const p of products) {
-    insert.run({ ...p, createdAt: new Date().toISOString() });
-    console.log(`  ✓ Created: "${p.name}" (id: ${p.id})`);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Order" (
+    id          TEXT PRIMARY KEY,
+    userId      TEXT NOT NULL,
+    items       TEXT NOT NULL DEFAULT '[]',
+    total       REAL NOT NULL DEFAULT 0,
+    status      TEXT NOT NULL DEFAULT 'pending',
+    address     TEXT NOT NULL DEFAULT '{}',
+    paymentId   TEXT DEFAULT NULL,
+    razorpayOrderId TEXT DEFAULT NULL,
+    createdAt   TEXT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES User(id)
+  );
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS Wishlist (
+    id          TEXT PRIMARY KEY,
+    userId      TEXT NOT NULL,
+    productId   TEXT NOT NULL,
+    createdAt   TEXT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES User(id),
+    FOREIGN KEY (productId) REFERENCES Product(id),
+    UNIQUE(userId, productId)
+  );
+`);
+
+// ── SEED PRODUCTS ──────────────────────────────────────────
+const products = [
+  // ─── WOMEN'S RINGS ───
+  { id: "w-ring-1", name: "Celestial Moonstone Ring", description: "A breathtaking moonstone set in hand-crafted sterling silver filigree. The iridescent stone catches the light beautifully, creating an ethereal glow.", price: 4299, category: "Rings", subcategory: "rings", gender: "women", material: "Sterling Silver", featured: 1, isNew: 1 },
+  { id: "w-ring-2", name: "Twisted Vine Band", description: "Delicate intertwining vines in polished silver, inspired by nature's elegance. Perfect for stacking or wearing solo.", price: 2899, category: "Rings", subcategory: "rings", gender: "women", material: "Sterling Silver", featured: 0, isNew: 0 },
+  { id: "w-ring-3", name: "Rose Quartz Solitaire", description: "A soft pink rose quartz stone in a minimalist mixed-metal setting. Symbolizes love and compassion.", price: 3599, category: "Rings", subcategory: "rings", gender: "women", material: "Mixed Metals", featured: 1, isNew: 1 },
+
+  // ─── WOMEN'S EARRINGS ───
+  { id: "w-ear-1", name: "Crystal Drop Earrings", description: "Elegant teardrop crystals suspended from delicate silver hooks. Catch the light with every movement for stunning brilliance.", price: 3199, category: "Earrings", subcategory: "earrings", gender: "women", material: "Sterling Silver", featured: 1, isNew: 0 },
+  { id: "w-ear-2", name: "Pearl Cluster Studs", description: "A trio of freshwater pearls clustered in an organic arrangement. Timeless sophistication for any occasion.", price: 2499, category: "Earrings", subcategory: "earrings", gender: "women", material: "Sterling Silver", featured: 1, isNew: 1 },
+  { id: "w-ear-3", name: "Hammered Disc Hoops", description: "Hand-hammered discs dangle from sleek hoops, blending rustic charm with modern design. Lightweight and comfortable.", price: 2799, category: "Earrings", subcategory: "earrings", gender: "women", material: "Mixed Metals", featured: 0, isNew: 0 },
+
+  // ─── WOMEN'S NECKLACES ───
+  { id: "w-neck-1", name: "Layered Chain Necklace", description: "Three delicate chains of varying lengths create an effortlessly chic layered look. The perfect everyday luxury.", price: 4999, category: "Necklaces", subcategory: "necklaces", gender: "women", material: "Sterling Silver", featured: 1, isNew: 1 },
+  { id: "w-neck-2", name: "Moonphase Pendant", description: "A crescent moon pendant with a tiny star accent, symbolizing celestial beauty and mystery. Hangs on a fine chain.", price: 3899, category: "Necklaces", subcategory: "necklaces", gender: "women", material: "Sterling Silver", featured: 1, isNew: 0 },
+  { id: "w-neck-3", name: "Baroque Pearl Choker", description: "An organic baroque pearl centrepiece on a mixed-metal choker. Each pearl is unique, making every piece one of a kind.", price: 5499, category: "Necklaces", subcategory: "necklaces", gender: "women", material: "Mixed Metals", featured: 0, isNew: 1 },
+
+  // ─── WOMEN'S BRACELETS ───
+  { id: "w-brac-1", name: "Serpentine Cuff", description: "A bold serpentine cuff in sterling silver with intricate scale detailing. A statement piece inspired by ancient mythology.", price: 5999, category: "Bracelets", subcategory: "bracelets", gender: "women", material: "Sterling Silver", featured: 1, isNew: 0 },
+  { id: "w-brac-2", name: "Charm Link Bracelet", description: "A delicate link bracelet designed to hold your favourite charms. Comes with a signature Sterlin star charm.", price: 3299, category: "Bracelets", subcategory: "bracelets", gender: "women", material: "Sterling Silver", featured: 0, isNew: 1 },
+
+  // ─── WOMEN'S CHARMS ───
+  { id: "w-charm-1", name: "Lotus Amulet", description: "A sacred lotus charm in sterling silver, representing purity and spiritual awakening. Can be added to any chain or bracelet.", price: 1899, category: "Charms & Amulets", subcategory: "charms-amulets", gender: "women", material: "Sterling Silver", featured: 0, isNew: 1 },
+
+  // ─── MEN'S BRACELETS ───
+  { id: "m-brac-1", name: "Heavy Cuban Link", description: "A bold Cuban link bracelet in polished sterling silver. Substantial weight for a luxurious feel on the wrist.", price: 6999, category: "Bracelets", subcategory: "bracelets", gender: "men", material: "Sterling Silver", featured: 1, isNew: 0 },
+  { id: "m-brac-2", name: "Leather & Silver Wrap", description: "Premium black leather woven with sterling silver accents. Rugged yet refined — perfect for the modern gentleman.", price: 3499, category: "Bracelets", subcategory: "bracelets", gender: "men", material: "Mixed Metals", featured: 0, isNew: 1 },
+
+  // ─── MEN'S RINGS ───
+  { id: "m-ring-1", name: "Signet Ring — Onyx", description: "A classic signet ring with a black onyx face, hand-set in heavy sterling silver. Engraving available on request.", price: 4599, category: "Rings", subcategory: "rings", gender: "men", material: "Sterling Silver", featured: 1, isNew: 0 },
+  { id: "m-ring-2", name: "Brushed Band", description: "A wide brushed-finish band in mixed metals. Minimal design with maximum impact.", price: 2999, category: "Rings", subcategory: "rings", gender: "men", material: "Mixed Metals", featured: 0, isNew: 0 },
+
+  // ─── MEN'S NECKLACES ───
+  { id: "m-neck-1", name: "Box Chain 22\"", description: "A classic box chain in sterling silver, 22 inches. The perfect base for pendants or a standalone statement.", price: 3999, category: "Necklaces", subcategory: "necklaces", gender: "men", material: "Sterling Silver", featured: 1, isNew: 1 },
+
+  // ─── MEN'S EARRINGS ───
+  { id: "m-ear-1", name: "Silver Stud — Minimal", description: "A single sterling silver stud earring with a subtle matte finish. Understated luxury.", price: 1499, category: "Earrings", subcategory: "earrings", gender: "men", material: "Sterling Silver", featured: 0, isNew: 0 },
+
+  // ─── MEN'S PENDANTS ───
+  { id: "m-pend-1", name: "Shield Pendant", description: "A heraldic shield pendant in mixed metals with oxidised detailing. Comes on a 24-inch chain.", price: 4299, category: "Pendants", subcategory: "pendants", gender: "men", material: "Mixed Metals", featured: 1, isNew: 1 },
+
+  // ─── MEN'S ACCESSORIES ───
+  { id: "m-acc-1", name: "Silver Tie Bar", description: "A sleek sterling silver tie bar with a polished finish. Elevate your formal attire effortlessly.", price: 1999, category: "Accessories", subcategory: "accessories", gender: "men", material: "Sterling Silver", featured: 0, isNew: 0 },
+
+  // ─── KIDS ───
+  { id: "k-1", name: "Tiny Star Studs", description: "Adorable star-shaped studs in hypoallergenic sterling silver. Perfect for little ears and big imaginations.", price: 1299, category: "Kids", subcategory: "kids", gender: "kids", material: "Sterling Silver", featured: 1, isNew: 1 },
+  { id: "k-2", name: "Rainbow Charm Bracelet", description: "A colourful bracelet with enamel rainbow charms on a silver chain. Adjustable clasp for growing wrists.", price: 1599, category: "Kids", subcategory: "kids", gender: "kids", material: "Sterling Silver", featured: 0, isNew: 1 },
+
+  // ─── DIVINE (SPIRITUAL) ───
+  { id: "d-1", name: "Om Pendant", description: "The sacred Om symbol intricately crafted in sterling silver. A piece that connects the wearer to inner peace.", price: 2799, category: "Divine", subcategory: "divine", gender: "unisex", material: "Sterling Silver", featured: 1, isNew: 0 },
+  { id: "d-2", name: "Evil Eye Bracelet", description: "A protective evil eye bracelet with blue enamel detailing on a sterling silver chain. Ward off negativity in style.", price: 2199, category: "Divine", subcategory: "divine", gender: "unisex", material: "Sterling Silver", featured: 1, isNew: 1 },
+  { id: "d-3", name: "Hamsa Hand Necklace", description: "The hand of Fatima rendered in stunning detail. Mixed metals create a warm, antique finish.", price: 3299, category: "Divine", subcategory: "divine", gender: "unisex", material: "Mixed Metals", featured: 0, isNew: 0 },
+
+  // ─── GIFTING ───
+  { id: "g-1", name: "Bridal Tiara — Crystal", description: "A delicate crystal-encrusted tiara for the bride-to-be. Sterling silver frame with over 40 hand-set crystals.", price: 8999, category: "Gifting", subcategory: "bride-to-be", gender: "women", material: "Sterling Silver", featured: 1, isNew: 1 },
+  { id: "g-2", name: "Bridesmaid Pearl Set", description: "A matching necklace and earring set in freshwater pearls. The perfect thank-you gift for your bridal party.", price: 4499, category: "Gifting", subcategory: "bridesmaids", gender: "women", material: "Sterling Silver", featured: 0, isNew: 0 },
+  { id: "g-3", name: "Groomsman Cufflinks", description: "Classic sterling silver cufflinks with a brushed finish. Comes in a premium gift box.", price: 2999, category: "Gifting", subcategory: "groomsman", gender: "men", material: "Sterling Silver", featured: 0, isNew: 0 },
+  { id: "g-4", name: "Baby's First Bangle", description: "A tiny sterling silver bangle engraved with 'Little Star'. The perfect welcome-to-the-world gift.", price: 1799, category: "Gifting", subcategory: "baby", gender: "kids", material: "Sterling Silver", featured: 1, isNew: 1 },
+  { id: "g-5", name: "Silver Photo Frame", description: "A sterling silver photo frame for the home. Holds a 5x7 photo. Timeless elegance for any mantelpiece.", price: 3499, category: "Gifting", subcategory: "for-home", gender: "unisex", material: "Sterling Silver", featured: 0, isNew: 0 },
+
+  // ─── CORPORATE ───
+  { id: "c-1", name: "Corporate Gift Set", description: "A curated set of silver accessories including a pen, card holder, and keychain. Premium corporate gifting at its finest.", price: 5999, category: "Corporate", subcategory: "corporate", gender: "unisex", material: "Sterling Silver", featured: 1, isNew: 0 },
+  { id: "c-2", name: "Party Favour — Mini Charm", description: "Bulk-order mini silver charms for wedding favours or corporate events. Minimum order: 10 pieces.", price: 599, category: "Corporate", subcategory: "corporate", gender: "unisex", material: "Sterling Silver", featured: 0, isNew: 0 },
+
+  // ─── COLLECTIONS (Special) ───
+  { id: "col-1", name: "Aurora Borealis Ring", description: "Part of the Celestial Collection — an opalescent stone shimmering with northern lights colours, set in a silver halo.", price: 6499, category: "Collections", subcategory: "celestial", gender: "women", material: "Sterling Silver", featured: 1, isNew: 1 },
+  { id: "col-2", name: "Midnight Star Necklace", description: "Part of the Celestial Collection — a star pendant in dark oxidised silver with a diamond-cut centre.", price: 7299, category: "Collections", subcategory: "celestial", gender: "unisex", material: "Sterling Silver", featured: 1, isNew: 1 },
+];
+
+// ── SEED ADMIN USER ────────────────────────────────────────
+// Password: admin123 (bcryptjs hash)
+const adminUser = {
+  id: "admin-001",
+  name: "Sterlin Admin",
+  email: "admin@sterlin.com",
+  // Pre-hashed password for "admin123" — generated with bcryptjs
+  password: "$2a$10$8KzQ6D5U8FvL3o5nZmPxE.YqJx8GQ3kTqMVvOYk3CvX5aHrGUqWri",
+  role: "admin",
+  createdAt: new Date().toISOString(),
+};
+
+// ── RUN SEED ───────────────────────────────────────────────
+console.log("🌱 Starting Sterlin database seed...\n");
+
+// Clear tables (order matters for foreign keys)
+db.prepare("DELETE FROM Wishlist").run();
+db.prepare('DELETE FROM "Order"').run();
+db.prepare("DELETE FROM User").run();
+db.prepare("DELETE FROM Product").run();
+
+// Insert products
+const insertProduct = db.prepare(`
+  INSERT INTO Product (id, name, description, price, category, subcategory, gender, material, images, featured, isNew, stock, createdAt)
+  VALUES (@id, @name, @description, @price, @category, @subcategory, @gender, @material, @images, @featured, @isNew, @stock, @createdAt)
+`);
+
+const seedProducts = db.transaction((items) => {
+  for (const p of items) {
+    insertProduct.run({
+      ...p,
+      images: "[]",
+      stock: 50,
+      createdAt: new Date().toISOString(),
+    });
+    console.log(`  ✓ Product: "${p.name}"`);
   }
 });
 
-insertMany(defaultProducts);
+seedProducts(products);
+
+// Insert admin user
+const insertUser = db.prepare(`
+  INSERT INTO User (id, name, email, password, role, createdAt)
+  VALUES (@id, @name, @email, @password, @role, @createdAt)
+`);
+insertUser.run(adminUser);
+console.log(`\n  ✓ Admin user: ${adminUser.email}`);
 
 db.close();
-console.log("\nSeeding finished. Database ready at:", dbPath);
+console.log(`\n✅ Seeding complete! ${products.length} products, 1 admin user.`);
+console.log(`   Database: ${dbPath}`);

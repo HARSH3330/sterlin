@@ -1,0 +1,161 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 40px 20px;
+}
+
+.productCard {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.imageWrapper {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background-color: #f9f9f9;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.imageContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholderImg {
+  font-family: var(--font-serif);
+  font-size: 5rem;
+  color: var(--border);
+  opacity: 0.5;
+}
+
+.badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 10;
+  background: white;
+  padding: 5px 12px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--border);
+}
+
+.productInfo {
+  text-align: center;
+}
+
+.productName {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.material {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.price {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.addToCart {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--text-primary);
+  background: white;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  transition: all 0.3s;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.productCard:hover .addToCart {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.addToCart:hover {
+  background: var(--text-primary);
+  color: white;
+}
+
+/* Skeletons */
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonImage {
+  aspect-ratio: 4 / 5;
+  background-color: #eee;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeletonText, .skeletonPrice {
+  height: 15px;
+  background-color: #eee;
+  margin: 0 auto 10px;
+  width: 70%;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeletonPrice {
+  width: 40%;
+}
+
+.skeletonImage::after, .skeletonText::after, .skeletonPrice::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.noProducts {
+  text-align: center;
+  padding: 100px 0;
+}
+
+@media (max-width: 768px) {
+  .addToCart {
+    opacity: 1;
+    transform: none;
+    margin-top: 10px;
+  }
+}

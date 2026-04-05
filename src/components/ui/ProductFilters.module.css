@@ -1,0 +1,62 @@
+.filters {
+  position: sticky;
+  top: 100px;
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+.heading {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.list {
+  list-style: none;
+}
+
+.list li {
+  margin-bottom: 8px;
+}
+
+.list button {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.list button:hover, .list button.active {
+  color: var(--text-primary);
+}
+
+.list button.active {
+  font-weight: 500;
+}
+
+.clearBtn {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  opacity: 0.6;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+}

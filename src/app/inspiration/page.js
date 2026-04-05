@@ -2,8 +2,8 @@ import styles from "./page.module.css";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Inspiration | Sterlin+",
-  description: "Style guides, jewellery care tips, and editorial stories — the Sterlin+ inspiration journal.",
+  title: "Inspiration | Sterly",
+  description: "Style guides, jewellery care tips, and editorial stories — the Sterly inspiration journal.",
 };
 
 const articles = [

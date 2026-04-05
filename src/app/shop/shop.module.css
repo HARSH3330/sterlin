@@ -1,0 +1,65 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 120px 40px 80px;
+}
+
+.header {
+  margin-bottom: 80px;
+  text-align: center;
+}
+
+.title {
+  font-size: 4rem;
+  font-family: var(--font-serif);
+  margin-bottom: 15px;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 60px;
+}
+
+.resultsHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 1024px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    display: none; /* In a real app we'd add a mobile filter drawer */
+  }
+  
+  .title {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 100px 20px 40px;
+  }
+}

@@ -1,39 +1,61 @@
 .navbar {
   position: fixed;
-  top: 0;
+  top: 36px;
   left: 0;
   width: 100%;
-  padding: 2rem 4rem;
+  padding: 1.4rem 4rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 100;
-  mix-blend-mode: difference;
-  color: #fff;
+  z-index: 150;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid #e8e8e8;
+  color: #0A0A0A;
+  transition: background 0.3s ease;
 }
 
 .logo a {
   font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
 }
 
 .links {
   display: flex;
   gap: 3rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
   font-weight: 500;
+  text-transform: uppercase;
 }
 
 .links a {
   position: relative;
+  color: var(--text-muted);
   transition: color 0.3s ease;
 }
 
+.links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: #0A0A0A;
+  transition: width 0.3s ease;
+}
+
 .links a:hover {
-  color: var(--gold-primary);
+  color: var(--text-primary);
+}
+
+.links a:hover::after {
+  width: 100%;
 }
 
 .menu {
@@ -43,10 +65,11 @@
 }
 
 .cartIcon {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
   font-weight: 500;
-  color: var(--text-primary);
+  text-transform: uppercase;
+  color: var(--text-muted);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -54,20 +77,47 @@
 }
 
 .cartIcon:hover {
-  color: var(--gold-primary);
+  color: var(--text-primary);
+}
+
+.searchIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.searchIcon:hover {
+  color: var(--text-primary);
+}
+
+.accountLink {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.accountLink:hover {
+  color: var(--text-primary);
 }
 
 .hamburger {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 30px;
+  width: 26px;
+  cursor: pointer;
 }
 
 .hamburger span {
   display: block;
   height: 1px;
-  background-color: currentColor;
+  background-color: var(--text-primary);
   transition: all 0.3s ease;
 }
 
@@ -76,7 +126,7 @@
 }
 
 .hamburger span:last-child {
-  width: 60%;
+  width: 55%;
   align-self: flex-end;
 }
 
@@ -86,7 +136,7 @@
 
 /* ─── RESPONSIVE ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .navbar { padding: 1.5rem; }
-  .links { display: none; } /* hidden on mobile; hamburger menu would take over */
+  .navbar { padding: 1.1rem 1.5rem; top: 36px; }
+  .links { display: none; }
   .menu { gap: 1rem; }
 }

@@ -3,6 +3,7 @@
 import { useCart } from "@/hooks/useCart";
 import styles from "./CartDrawer.module.css";
 import { useEffect, useState } from "react";
+import Link from 'next/link';
 
 export default function CartDrawer() {
   const { isCartOpen, toggleCart, items, removeItem, updateQuantity, getTotal } = useCart();
@@ -64,7 +65,9 @@ export default function CartDrawer() {
               <span>${getTotal().toFixed(2)}</span>
             </div>
             <p className={styles.shippingNotice}>Shipping & taxes calculated at checkout.</p>
-            <button className={styles.checkoutBtn}>PROCEED TO CHECKOUT</button>
+            <Link href="/checkout" className={styles.checkoutBtn} onClick={toggleCart}>
+              PROCEED TO CHECKOUT
+            </Link>
           </div>
         )}
       </div>

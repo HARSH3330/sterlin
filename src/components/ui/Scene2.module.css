@@ -2,211 +2,157 @@
   position: relative;
   width: 100%;
   min-height: 100vh;
-  padding: 5rem 4rem;
-  background-color: var(--bg-dark);
-  z-index: 2;
-  border-top: 1px solid rgba(255,255,255,0.05); /* very subtle top border */
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 2rem;
-  height: 100%;
+  padding: 6rem 4rem;
+  background-color: var(--bg-light);
+  overflow: hidden;
+  display: flex;
   align-items: center;
 }
 
-.textColumn {
-  padding-right: 2rem;
+/* ── Faded background text ──────────────────────────────────── */
+.bgWord {
+  position: absolute;
+  top: 10%;
+  left: -2rem;
+  font-family: var(--font-serif);
+  font-size: clamp(6rem, 16vw, 14rem);
+  font-weight: 700;
+  color: var(--bg-accent);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  line-height: 1;
+  opacity: 0; /* GSAP fades in */
 }
 
-.textContent {
+.bgWordRight {
+  top: auto;
+  bottom: 5%;
+  left: auto;
+  right: -2rem;
+  text-align: right;
+}
+
+/* ── Content ──────────────────────────────────────────────────── */
+.inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 4rem;
+}
+.label span {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--gold);
+}
+.label p {
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+/* ── Asymmetric 2-card grid ────────────────────────────────────── */
+.catGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* Second card is offset downward for asymmetry */
+.catCardOffset {
+  margin-top: 6rem;
+}
+
+.catCard {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
-
-.avatars {
-  display: flex;
-  gap: -10px;
-  margin-bottom: 1rem;
-}
-
-.avatar1, .avatar2 {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid var(--bg-dark);
-  background: radial-gradient(circle at center, #c9a84c, #996515);
-}
-.avatar2 {
-  margin-left: -15px;
-  background: radial-gradient(circle at center, #f5f0e8, #adadad);
-}
-
-.title {
-  font-size: 2.5rem;
-  line-height: 1.2;
-}
-
-.description {
-  font-size: 0.9rem;
-  color: rgba(245, 240, 232, 0.7);
-  max-width: 80%;
-  line-height: 1.6;
-}
-
-.link {
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: var(--text-primary);
-  margin-top: 1rem;
-  position: relative;
-  width: fit-content;
   text-decoration: none;
+  color: var(--text-primary);
+  opacity: 0; /* GSAP fades in */
 }
-.link::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
+
+.catImg {
   width: 100%;
-  height: 1px;
-  background-color: var(--text-primary);
-  transition: width 0.3s;
-}
-.link:hover::after {
-  width: 0%;
-}
-
-.imageColumn {
-  height: 600px;
-  display: flex;
-  justify-content: center;
+  aspect-ratio: 3 / 4;
+  background: var(--bg-card);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.imageCard {
+.catCard:hover .catImg {
+  transform: scale(1.02);
+}
+
+.catImgInner {
   width: 100%;
   height: 100%;
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-  background-color: var(--bg-darker);
+  background: linear-gradient(160deg, #EDE0CC 0%, #D8C9B8 60%, #E8DDD0 100%);
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.primaryCard {
-  background: linear-gradient(to bottom, rgba(200, 100, 50, 0.4), var(--bg-darker));
+.catCard:hover .catImgInner {
+  transform: scale(1.06);
 }
 
-.playButtonWrapper {
+.catTag {
   position: absolute;
   top: 1.5rem;
   left: 1.5rem;
-  width: 50px;
-  height: 50px;
-  background: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  cursor: pointer;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  background: rgba(245, 240, 232, 0.9);
+  padding: 0.3rem 0.75rem;
+  backdrop-filter: blur(4px);
 }
 
-.playButton {
-  color: #000;
-  margin-left: 4px; /* optical center */
-  font-size: 1rem;
+.catInfo {
+  padding: 0 0.25rem;
 }
 
-.modelPlaceholder {
-  width: 100%;
-  height: 80%;
-  position: absolute;
-  bottom: 0;
-  background: radial-gradient(circle at top, rgba(255,150,100,0.1), transparent);
-}
-
-.cardLabel {
-  position: absolute;
-  bottom: 1.5rem;
-  left: 1.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: var(--text-primary);
-}
-
-.secondaryCard {
-  background: var(--bg-darker);
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  z-index: 10;
-}
-
-.secondaryTitle {
-  font-size: 1.5rem;
+.catName {
+  font-family: var(--font-serif);
+  font-size: 2rem;
   font-weight: 400;
-}
-
-.circleArrow {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
   color: var(--text-primary);
+  margin-bottom: 0.6rem;
+  transition: color 0.25s;
 }
 
-.objectPlaceholder {
-  flex: 1;
-  position: relative;
-  margin-top: 2rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+.catCard:hover .catName {
+  color: var(--gold);
 }
 
-.rock {
-  width: 80%;
-  height: 60%;
-  background: #333;
-  clip-path: polygon(20% 0%, 80% 10%, 100% 100%, 0% 100%);
-  position: relative;
-}
-
-.earring {
-  position: absolute;
-  top: 30%;
-  width: 40px;
-  height: 40px;
-  border: 6px solid var(--gold-primary);
-  border-radius: 50%;
-  transform: perspective(200px) rotateX(40deg) rotateY(-20deg);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+.catDesc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 /* ─── RESPONSIVE ──────────────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .scene { padding: 4rem 2.5rem; }
-  .title { font-size: 2rem; }
-  .imageColumn { height: 450px; }
+  .scene { padding: 5rem 2.5rem; }
+  .bgWord { font-size: clamp(4rem, 12vw, 9rem); }
 }
 
 @media (max-width: 768px) {
-  .grid { grid-template-columns: 1fr; gap: 2.5rem; }
-  .imageColumn { height: 300px; }
-  .textColumn { padding-right: 0; }
+  .scene { padding: 4rem 1.5rem; }
+  .catGrid { grid-template-columns: 1fr; gap: 2rem; }
+  .catCardOffset { margin-top: 0; }
+  .bgWord { display: none; }
 }
-

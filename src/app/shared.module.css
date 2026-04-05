@@ -1,0 +1,185 @@
+/* ─ Shared page layout styles for all category/listing pages ─ */
+
+.page {
+  min-height: 100vh;
+  background-color: var(--bg-light);
+  padding-top: 5rem; /* offset for fixed navbar */
+}
+
+/* ─── Banner ─────────────────────────────────────────────────── */
+.banner {
+  width: 100%;
+  padding: 5rem 4rem 3rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.bannerBg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #EDE0CC 0%, var(--bg-light) 70%);
+  z-index: 0;
+}
+
+.bannerContent {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.bannerTitle {
+  font-size: 4.5rem;
+  line-height: 1.05;
+  color: var(--text-primary);
+  max-width: 700px;
+}
+
+.bannerDesc {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 500px;
+  line-height: 1.7;
+}
+
+/* ─── Body ───────────────────────────────────────────────────── */
+.body {
+  padding: 4rem;
+}
+
+/* ─── Section heading ────────────────────────────────────────── */
+.sectionHeading {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─── Category grid ──────────────────────────────────────────── */
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3.5rem;
+}
+
+.categoryCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
+  border-radius: 2px;
+}
+
+.categoryCard:hover {
+  background: var(--bg-accent);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(26, 20, 16, 0.08);
+}
+
+.categoryIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.categoryName {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+.categoryArrow {
+  font-size: 0.8rem;
+  color: var(--gold);
+  margin-top: auto;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+/* ─── Coming‑soon / empty state ─────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 6rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.emptyState h3 {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  color: var(--text-primary);
+}
+.emptyState p {
+  max-width: 380px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+/* ─── CTA button ─────────────────────────────────────────────── */
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.8rem;
+  border-radius: 30px;
+  border: 1px solid var(--border-strong, rgba(140,115,85,0.4));
+  background: rgba(184, 154, 90, 0.1);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.25s, transform 0.25s;
+  font-family: var(--font-sans);
+}
+.ctaBtn:hover {
+  background: rgba(184, 154, 90, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .banner { padding: 4rem 2.5rem 2.5rem; }
+  .bannerTitle { font-size: 3.5rem; }
+  .body { padding: 3rem 2.5rem; }
+}
+@media (max-width: 768px) {
+  .banner { padding: 3.5rem 1.5rem 2rem; }
+  .bannerTitle { font-size: 2.6rem; }
+  .body { padding: 2.5rem 1.5rem; }
+  .categoryGrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+@media (max-width: 480px) {
+  .bannerTitle { font-size: 2rem; }
+}

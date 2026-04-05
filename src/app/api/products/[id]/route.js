@@ -12,14 +12,18 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    product.featured = product.featured === 1;
-
-    return NextResponse.json(product);
+    return NextResponse.json({
+      ...product,
+      featured: product.featured === 1,
+      isNew: product.isNew === 1,
+      images: JSON.parse(product.images || "[]")
+    });
   } catch (error) {
-    console.error(`Failed to fetch product ${params.id}:`, error);
+    console.error(`Failed to fetch product:`, error);
     return NextResponse.json(
-      { error: "Failed to fetch product from the database" },
+      { error: "Failed to fetch product" },
       { status: 500 }
     );
   }
 }
+

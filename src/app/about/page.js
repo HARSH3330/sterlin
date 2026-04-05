@@ -2,8 +2,8 @@ import styles from "./page.module.css";
 import Link from "next/link";
 
 export const metadata = {
-  title: "About Us | Sterlin+",
-  description: "Sterlin+ has been crafting personalised memories since 1954. Discover our story, values, and commitment to timeless high jewellery.",
+  title: "About Us | Sterly",
+  description: "Sterly has been crafting personalised memories since 1954. Discover our story, values, and commitment to timeless high jewellery.",
 };
 
 export default function AboutPage() {
@@ -28,7 +28,7 @@ export default function AboutPage() {
           <div className={styles.textBlock}>
             <h2 className={styles.sectionTitle}>Our Story</h2>
             <p className={styles.body}>
-              Sterlin+ was founded with a single belief: that truly exceptional jewellery
+              Sterly was founded with a single belief: that truly exceptional jewellery
               should be accessible to those who appreciate it. We began as a small atelier
               on the cobblestoned streets of Geneva, where master craftspeople poured
               their lifetimes of skill into every ring, bracelet, and pendant.
@@ -71,7 +71,7 @@ export default function AboutPage() {
             {
               icon: "✦",
               title: "Lifetime Guarantee",
-              body: "Every Sterlin+ piece comes with a lifetime guarantee against manufacturing defects. We stand behind our craft forever.",
+              body: "Every Sterly piece comes with a lifetime guarantee against manufacturing defects. We stand behind our craft forever.",
             },
           ].map((v) => (
             <div key={v.title} className={styles.valueCard}>

@@ -1,19 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-  --bg-dark: #120a05;
-  --bg-darker: #0c0703;
-  --bg-accent: #2a1610;
-  --text-primary: #f5f0e8;
-  --text-secondary: #c9a84c;
-  --gold-primary: #d4af37;
-  --gold-light: #f3e5ab;
-  --gold-dark: #996515;
-  --border-subtle: rgba(201, 168, 76, 0.2);
-  --glass-bg: rgba(42, 22, 16, 0.4);
-  
-  --font-serif: 'Playfair Display', serif;
-  --font-sans: 'Inter', sans-serif;
+  /* ── Sterlin Silver Palette — White & Black ── */
+  --bg-light:       #FFFFFF;   /* pure white — main page background */
+  --bg-card:        #F5F5F5;   /* card / surface */
+  --bg-accent:      #E8E8E8;   /* subtle accent surface / borders */
+  --bg-dark:        #0A0A0A;   /* dark sections */
+
+  --text-primary:   #0A0A0A;   /* near-black */
+  --text-muted:     #555555;   /* muted grey */
+  --text-secondary: #888888;   /* secondary label */
+
+  --gold:           #9E9E9E;   /* silver-grey accent */
+  --gold-light:     #BDBDBD;
+  --gold-dark:      #616161;
+
+  --border:         rgba(0, 0, 0, 0.1);
+  --border-strong:  rgba(0, 0, 0, 0.2);
+
+  /* legacy aliases so existing components still compile */
+  --gold-primary:       #9E9E9E;
+  --gold-primary-light: #BDBDBD;
+  --border-subtle:      rgba(0, 0, 0, 0.1);
+  --glass-bg:           rgba(255, 255, 255, 0.7);
+
+  --font-serif:  'Playfair Display', serif;
+  --font-sans:   'Inter', sans-serif;
   --font-accent: 'Cormorant Garamond', serif;
 }
 
@@ -27,7 +39,7 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: var(--bg-dark);
+  background-color: #ffffff;
   color: var(--text-primary);
   font-family: var(--font-sans);
   scroll-behavior: smooth;
@@ -36,15 +48,14 @@ body {
 }
 
 body {
-  /* Subtle radial gradient to give a cinematic dark luxury feel */
-  background: radial-gradient(circle at 50% 0%, var(--bg-accent) 0%, var(--bg-dark) 50%, var(--bg-darker) 100%);
-  background-attachment: fixed;
+  background: #ffffff;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
   font-weight: 400;
   letter-spacing: 0.02em;
+  color: var(--text-primary);
 }
 
 a {
@@ -59,24 +70,27 @@ button {
   background: none;
 }
 
-/* Custom Scrollbar for Luxury Feel */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-darker);
+  background: var(--bg-card);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--bg-accent);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-dark);
+  background: var(--gold);
 }
 
 /* Utilities */
 .text-gold {
-  color: var(--text-secondary);
+  color: var(--gold);
+}
+.text-muted {
+  color: var(--text-muted);
 }
 .font-serif {
   font-family: var(--font-serif);
@@ -86,7 +100,7 @@ button {
   font-style: italic;
 }
 
-/* Grain overlay for cinematic texture */
+/* Very subtle grain for texture — nearly invisible on light bg */
 .grain-overlay {
   position: fixed;
   top: 0;
@@ -95,6 +109,6 @@ button {
   height: 100vh;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.03;
+  opacity: 0.015;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
