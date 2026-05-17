@@ -13,7 +13,9 @@ const CATEGORIES = [
 
 const MATERIALS = ["Sterling Silver", "Mixed Metals", "Gold Plated", "18K Solid Gold", "White Gold"];
 
-export default function ShopAllPage() {
+import { Suspense } from 'react';
+
+function ShopPageContent() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,5 +63,13 @@ export default function ShopAllPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ShopAllPage() {
+  return (
+    <Suspense fallback={<div className={styles.container}>Loading...</div>}>
+      <ShopPageContent />
+    </Suspense>
   );
 }

@@ -9,7 +9,9 @@ import styles from '../shop/shop.module.css';
 const CATEGORIES = ["Rings", "Earrings", "Necklaces", "Bracelets", "Pendants", "Accessories"];
 const MATERIALS = ["Sterling Silver", "Mixed Metals"];
 
-export default function MensPage() {
+import { Suspense } from 'react';
+
+function MensPageContent() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,5 +44,13 @@ export default function MensPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MensPage() {
+  return (
+    <Suspense fallback={<div className={styles.container}>Loading...</div>}>
+      <MensPageContent />
+    </Suspense>
   );
 }
