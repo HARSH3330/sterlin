@@ -6,29 +6,23 @@ export async function POST(request) {
   try {
     const data = await request.json();
     const db = getDb();
-    const id = randomUUID();
-    const createdAt = new Date().toISOString();
+    const product = await db.product.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        category: data.category,
+        subcategory: data.subcategory || '',
+        gender: data.gender || 'unisex',
+        material: data.material,
+        images: data.images || '[]',
+        featured: Boolean(data.featured),
+        isNew: Boolean(data.isNew),
+        stock: data.stock || 50
+      }
+    });
 
-    db.prepare(`
-      INSERT INTO Product (id, name, description, price, category, subcategory, gender, material, images, featured, isNew, stock, createdAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      id,
-      data.name,
-      data.description,
-      data.price,
-      data.category,
-      data.subcategory || '',
-      data.gender || 'unisex',
-      data.material,
-      data.images || '[]',
-      data.featured || 0,
-      data.isNew || 0,
-      data.stock || 50,
-      createdAt
-    );
-
-    return NextResponse.json({ success: true, id }, { status: 201 });
+    return NextResponse.json({ success: true, id: product.id }, { status: 201 });
   } catch (error) {
     console.error('Failed to create product:', error);
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });

@@ -32,23 +32,20 @@ export async function POST(request) {
 
     // 2. Save order to database
     const db = getDb();
-    const orderId = randomUUID();
-    const createdAt = new Date().toISOString();
-
-    db.prepare(`
-      INSERT INTO "Order" (id, userId, items, total, status, address, paymentId, razorpayOrderId, createdAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      orderId,
-      user.id,
-      JSON.stringify(items),
-      total,
-      'paid',
-      JSON.stringify(address),
-      razorpay_payment_id,
-      razorpay_order_id,
-      createdAt
-    );
+    
+    const orderRecord = await db.order.create({
+      data: {
+        userId: user.id,
+        items: JSON.stringify(items),
+        total,
+        status: 'paid',
+        address: JSON.stringify(address),
+        paymentId: razorpay_payment_id,
+        razorpayOrderId: razorpay_order_id,
+      }
+    });
+    
+    const orderId = orderRecord.id;
 
     return NextResponse.json({ success: true, orderId });
   } catch (error) {

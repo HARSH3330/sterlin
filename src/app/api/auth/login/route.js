@@ -14,7 +14,7 @@ export async function POST(request) {
     }
 
     const db = getDb();
-    const user = db.prepare('SELECT * FROM User WHERE email = ?').get(email);
+    const user = await db.user.findUnique({ where: { email } });
 
     if (!user) {
       return NextResponse.json(

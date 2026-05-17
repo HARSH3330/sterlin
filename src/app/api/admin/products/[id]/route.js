@@ -6,7 +6,9 @@ export async function DELETE(request, { params }) {
     const { id } = await params;
     const db = getDb();
 
-    db.prepare("DELETE FROM Product WHERE id = ?").run(id);
+    await db.product.delete({
+      where: { id }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -21,20 +23,18 @@ export async function PUT(request, { params }) {
     const data = await request.json();
     const db = getDb();
 
-    db.prepare(`
-      UPDATE Product 
-      SET name = ?, description = ?, price = ?, category = ?, genre = ?, material = ?, featured = ?
-      WHERE id = ?
-    `).run(
-      data.name,
-      data.description,
-      data.price,
-      data.category,
-      data.gender,
-      data.material,
-      data.featured,
-      id
-    );
+    await db.product.update({
+      where: { id },
+      data: {
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        category: data.category,
+        gender: data.gender,
+        material: data.material,
+        featured: data.featured
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

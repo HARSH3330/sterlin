@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import styles from '../admin.module.css';
+import styles from '../../admin.module.css';
 
 export default function AddProductPage() {
   const router = useRouter();

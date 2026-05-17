@@ -8,17 +8,14 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const db = getDb();
-  const wishlist = db.prepare(`
-    SELECT p.* FROM Product p
-    JOIN Wishlist w ON p.id = w.productId
-    WHERE w.userId = ?
-  `).all(user.id);
+  const wishlistItems = await db.wishlist.findMany({
+    where: { userId: user.id },
+    include: { product: true }
+  });
 
-  const converted = wishlist.map(p => ({
-    ...p,
-    featured: p.featured === 1,
-    isNew: p.isNew === 1,
-    images: JSON.parse(p.images || "[]")
+  const converted = wishlistItems.map(item => ({
+    ...item.product,
+    images: JSON.parse(item.product.images || "[]")
   }));
 
   return NextResponse.json(converted);
@@ -32,14 +29,16 @@ export async function POST(request) {
   const db = getDb();
 
   try {
-    db.prepare(`
-      INSERT INTO Wishlist (id, userId, productId, createdAt)
-      VALUES (?, ?, ?, ?)
-    `).run(randomUUID(), user.id, productId, new Date().toISOString());
+    await db.wishlist.create({
+      data: {
+        userId: user.id,
+        productId
+      }
+    });
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+    if (error.code === 'P2002') {
       return NextResponse.json({ error: 'Already in wishlist' }, { status: 409 });
     }
     return NextResponse.json({ error: 'Failed to add to wishlist' }, { status: 500 });
@@ -54,6 +53,11 @@ export async function DELETE(request) {
   const productId = searchParams.get('productId');
   const db = getDb();
 
-  db.prepare('DELETE FROM Wishlist WHERE userId = ? AND productId = ?').run(user.id, productId);
+  await db.wishlist.deleteMany({
+    where: {
+      userId: user.id,
+      productId: productId
+    }
+  });
   return NextResponse.json({ success: true });
 }

@@ -7,7 +7,10 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const db = getDb();
-  const orders = db.prepare('SELECT * FROM "Order" WHERE userId = ? ORDER BY createdAt DESC').all(user.id);
+  const orders = await db.order.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: 'desc' }
+  });
   
   return NextResponse.json(orders);
 }

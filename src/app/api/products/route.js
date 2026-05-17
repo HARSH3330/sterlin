@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/prisma";
+import { db } from "@/lib/db";
 
 export async function GET(request) {
   try {
@@ -10,38 +10,36 @@ export async function GET(request) {
     const gender = searchParams.get("gender");
     const q = searchParams.get("q");
 
-    let queryStr = "SELECT * FROM Product WHERE 1=1";
-    const params = [];
+    const where = {};
 
     if (category) {
-      queryStr += " AND category = ?";
-      params.push(category);
+      where.category = category;
     }
     if (material) {
-      queryStr += " AND material = ?";
-      params.push(material);
+      where.material = material;
     }
     if (gender) {
-      queryStr += " AND gender = ?";
-      params.push(gender);
+      where.gender = gender;
     }
     if (featured === "true") {
-      queryStr += " AND featured = 1";
+      where.featured = true;
     }
     if (q) {
-      queryStr += " AND (name LIKE ? OR description LIKE ?)";
-      params.push(`%${q}%`, `%${q}%`);
+      where.OR = [
+        { name: { contains: q, mode: 'insensitive' } },
+        { description: { contains: q, mode: 'insensitive' } }
+      ];
     }
 
-    queryStr += " ORDER BY createdAt DESC";
-
-    const stmt = db.prepare(queryStr);
-    const products = stmt.all(...params);
+    const products = await db.product.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
 
     const converted = products.map(p => ({
       ...p,
-      featured: p.featured === 1,
-      isNew: p.isNew === 1,
       images: JSON.parse(p.images || "[]")
     }));
 

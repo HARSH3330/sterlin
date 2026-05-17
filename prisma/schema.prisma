@@ -1,21 +1,60 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   description String
   price       Float
   category    String
+  subcategory String     @default("")
+  gender      String     @default("unisex")
   material    String
-  images      String   // JSON array of image URLs or placeholder logic
-  featured    Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  images      String     @default("[]")
+  featured    Boolean    @default(false)
+  isNew       Boolean    @default(false)
+  stock       Int        @default(50)
+  createdAt   DateTime   @default(now())
+  wishlistedBy Wishlist[]
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String
+  role      String     @default("customer")
+  createdAt DateTime   @default(now())
+  orders    Order[]
+  wishlist  Wishlist[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  items           String   @default("[]")
+  total           Float    @default(0)
+  status          String   @default("pending")
+  address         String   @default("{}")
+  paymentId       String?
+  razorpayOrderId String?
+  createdAt       DateTime @default(now())
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
 }

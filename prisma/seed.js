@@ -1,77 +1,10 @@
 // seed.js — Sterlin full database seed
-const Database = require('better-sqlite3');
+const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 const crypto = require('crypto');
-
-const dbPath = path.resolve(__dirname, 'dev.db');
-const db = new Database(dbPath);
-
-// Load env vars if needed (Next.js usually handles this, but standalone script might not)
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
 
-// ── DROP & CREATE TABLES ───────────────────────────────────
-db.exec(`DROP TABLE IF EXISTS Wishlist;`);
-db.exec(`DROP TABLE IF EXISTS "Order";`);
-db.exec(`DROP TABLE IF EXISTS User;`);
-db.exec(`DROP TABLE IF EXISTS Product;`);
-
-db.exec(`
-  CREATE TABLE Product (
-    id          TEXT PRIMARY KEY,
-    name        TEXT NOT NULL,
-    description TEXT NOT NULL,
-    price       REAL NOT NULL,
-    category    TEXT NOT NULL,
-    subcategory TEXT NOT NULL DEFAULT '',
-    gender      TEXT NOT NULL DEFAULT 'unisex',
-    material    TEXT NOT NULL,
-    images      TEXT NOT NULL DEFAULT '[]',
-    featured    INTEGER NOT NULL DEFAULT 0,
-    isNew       INTEGER NOT NULL DEFAULT 0,
-    stock       INTEGER NOT NULL DEFAULT 50,
-    createdAt   TEXT NOT NULL
-  );
-`);
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS User (
-    id          TEXT PRIMARY KEY,
-    name        TEXT NOT NULL,
-    email       TEXT NOT NULL UNIQUE,
-    password    TEXT NOT NULL,
-    role        TEXT NOT NULL DEFAULT 'customer',
-    createdAt   TEXT NOT NULL
-  );
-`);
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS "Order" (
-    id          TEXT PRIMARY KEY,
-    userId      TEXT NOT NULL,
-    items       TEXT NOT NULL DEFAULT '[]',
-    total       REAL NOT NULL DEFAULT 0,
-    status      TEXT NOT NULL DEFAULT 'pending',
-    address     TEXT NOT NULL DEFAULT '{}',
-    paymentId   TEXT DEFAULT NULL,
-    razorpayOrderId TEXT DEFAULT NULL,
-    createdAt   TEXT NOT NULL,
-    FOREIGN KEY (userId) REFERENCES User(id)
-  );
-`);
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS Wishlist (
-    id          TEXT PRIMARY KEY,
-    userId      TEXT NOT NULL,
-    productId   TEXT NOT NULL,
-    createdAt   TEXT NOT NULL,
-    FOREIGN KEY (userId) REFERENCES User(id),
-    FOREIGN KEY (productId) REFERENCES Product(id),
-    UNIQUE(userId, productId)
-  );
-`);
+const prisma = new PrismaClient();
 
 // ── SEED PRODUCTS ──────────────────────────────────────────
 const products = [
@@ -147,53 +80,56 @@ const adminUser = {
   id: "admin-001",
   name: "Sterlin Admin",
   email: process.env.ADMIN_EMAIL || "admin@sterlin.com",
-  // Pre-hashed password for "admin123" if not provided in env
-  // If we change password in env, we'd need to hash it.
-  // For the seed, we either use the pre-hashed one or we should hash it now.
   password: process.env.ADMIN_PASSWORD 
     ? require('bcryptjs').hashSync(process.env.ADMIN_PASSWORD, 10) 
     : "$2b$10$qZng2wp9W/4luM4/nHQY5O1aETapucvsZ4lZXLNyEKTXaDb5", 
   role: "admin",
-  createdAt: new Date().toISOString(),
 };
 
-// ── RUN SEED ───────────────────────────────────────────────
-console.log("🌱 Starting Sterlin database seed...\n");
+async function main() {
+  console.log("🌱 Starting Sterlin database seed...\n");
 
-// Clear tables (order matters for foreign keys)
-db.prepare("DELETE FROM Wishlist").run();
-db.prepare('DELETE FROM "Order"').run();
-db.prepare("DELETE FROM User").run();
-db.prepare("DELETE FROM Product").run();
+  // Clear tables (order matters for foreign keys)
+  await prisma.wishlist.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.product.deleteMany();
 
-// Insert products
-const insertProduct = db.prepare(`
-  INSERT INTO Product (id, name, description, price, category, subcategory, gender, material, images, featured, isNew, stock, createdAt)
-  VALUES (@id, @name, @description, @price, @category, @subcategory, @gender, @material, @images, @featured, @isNew, @stock, @createdAt)
-`);
-
-const seedProducts = db.transaction((items) => {
-  for (const p of items) {
-    insertProduct.run({
-      ...p,
-      images: "[]",
-      stock: 50,
-      createdAt: new Date().toISOString(),
+  // Insert products
+  for (const p of products) {
+    await prisma.product.create({
+      data: {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        price: p.price,
+        category: p.category,
+        subcategory: p.subcategory || '',
+        gender: p.gender || 'unisex',
+        material: p.material,
+        images: "[]",
+        featured: p.featured === 1,
+        isNew: p.isNew === 1,
+        stock: 50,
+      }
     });
     console.log(`  ✓ Product: "${p.name}"`);
   }
-});
 
-seedProducts(products);
+  // Insert admin user
+  await prisma.user.create({
+    data: adminUser
+  });
+  console.log(`\n  ✓ Admin user: ${adminUser.email}`);
 
-// Insert admin user
-const insertUser = db.prepare(`
-  INSERT INTO User (id, name, email, password, role, createdAt)
-  VALUES (@id, @name, @email, @password, @role, @createdAt)
-`);
-insertUser.run(adminUser);
-console.log(`\n  ✓ Admin user: ${adminUser.email}`);
+  console.log(`\n✅ Seeding complete! ${products.length} products, 1 admin user.`);
+}
 
-db.close();
-console.log(`\n✅ Seeding complete! ${products.length} products, 1 admin user.`);
-console.log(`   Database: ${dbPath}`);
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

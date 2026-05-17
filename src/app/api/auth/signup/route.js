@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { hashPassword, setAuthCookie } from '@/lib/auth';
-import { randomUUID } from 'crypto';
 
 export async function POST(request) {
   try {
@@ -24,7 +23,7 @@ export async function POST(request) {
     const db = getDb();
 
     // Check if user already exists
-    const existing = db.prepare('SELECT id FROM User WHERE email = ?').get(email);
+    const existing = await db.user.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json(
         { error: 'An account with this email already exists' },
@@ -33,14 +32,17 @@ export async function POST(request) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const id = randomUUID();
-    const createdAt = new Date().toISOString();
+    
+    const userRecord = await db.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: 'customer',
+      }
+    });
 
-    db.prepare(
-      'INSERT INTO User (id, name, email, password, role, createdAt) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(id, name, email, hashedPassword, 'customer', createdAt);
-
-    const user = { id, name, email, role: 'customer' };
+    const user = { id: userRecord.id, name, email, role: 'customer' };
     await setAuthCookie(user);
 
     return NextResponse.json({ user }, { status: 201 });

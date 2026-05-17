@@ -1,20 +1,14 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
-const dbPath = path.resolve(process.cwd(), 'prisma/dev.db');
+const globalForPrisma = global;
 
-let _db;
+export const db = globalForPrisma.prisma || new PrismaClient();
 
-export function getDb() {
-  if (!_db) {
-    _db = new Database(dbPath, {
-      fileMustExist: true,
-    });
-    _db.pragma('journal_mode = WAL');
-    _db.pragma('foreign_keys = ON');
-  }
-  return _db;
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = db;
 }
 
-// Backward-compatible default export
-export const db = new Database(dbPath, { fileMustExist: true });
+// Backward-compatible for files still calling getDb()
+export function getDb() {
+  return db;
+}

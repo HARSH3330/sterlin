@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/prisma";
+import { db } from "@/lib/db";
 
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
     
-    const stmt = db.prepare("SELECT * FROM Product WHERE id = ?");
-    const product = stmt.get(id);
+    const product = await db.product.findUnique({
+      where: { id }
+    });
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -14,8 +15,6 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({
       ...product,
-      featured: product.featured === 1,
-      isNew: product.isNew === 1,
       images: JSON.parse(product.images || "[]")
     });
   } catch (error) {

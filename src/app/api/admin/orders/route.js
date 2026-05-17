@@ -4,7 +4,9 @@ import { getDb } from '@/lib/db';
 export async function GET() {
   try {
     const db = getDb();
-    const orders = db.prepare('SELECT * FROM "Order" ORDER BY createdAt DESC').all();
+    const orders = await db.order.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
     
     return NextResponse.json(orders);
   } catch (error) {
