@@ -1,152 +1,61 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const prisma = new PrismaClient();
+const PRODUCTS_IMAGE_ROOT = path.resolve(__dirname, '../public/images/products');
+const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 
-const testProducts = [
-  {
-    id: 'test-ring-001',
-    name: 'Classic Silver Stack Ring',
-    description: 'A polished sterling silver ring designed for everyday stacking.',
-    price: 1499,
-    category: 'Rings',
-    subcategory: 'rings',
+function listProductImages(folderName) {
+  const folderPath = path.join(PRODUCTS_IMAGE_ROOT, folderName);
+  if (!fs.existsSync(folderPath)) return [];
+
+  return fs
+    .readdirSync(folderPath)
+    .filter((fileName) => IMAGE_EXTENSIONS.has(path.extname(fileName).toLowerCase()))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+}
+
+function priceForIndex(index) {
+  return 500 + ((index * 37) % 501);
+}
+
+function stockForIndex(index) {
+  return 12 + (index % 24);
+}
+
+function titleCaseProductName(type, index) {
+  const padded = String(index + 1).padStart(3, '0');
+  return type === 'ring' ? `Sterly Ring ${padded}` : `Sterly Necklace ${padded}`;
+}
+
+function buildProductsForFolder(type) {
+  const files = listProductImages(type);
+  const category = type === 'ring' ? 'Rings' : 'Necklaces';
+  const subcategory = type === 'ring' ? 'rings' : 'necklaces';
+  const displayType = type === 'ring' ? 'ring' : 'necklace';
+
+  return files.map((fileName, index) => ({
+    id: `catalog-${type}-${path.parse(fileName).name.replace(/[^a-zA-Z0-9_-]/g, '-').toLowerCase()}`,
+    name: titleCaseProductName(type, index),
+    description:
+      type === 'ring'
+        ? 'A lightweight fashion ring selected for everyday styling and gifting.'
+        : 'A graceful fashion necklace selected for everyday styling and gifting.',
+    price: priceForIndex(index),
+    category,
+    subcategory,
     gender: 'women',
-    material: 'Sterling Silver',
-    stock: 25,
-    image: '/images/for_her.jpeg',
-    featured: true,
-    isNew: true,
-  },
-  {
-    id: 'test-ear-001',
-    name: 'Pearl Glow Stud Earrings',
-    description: 'Minimal pearl studs with a clean silver setting for daily wear.',
-    price: 1899,
-    category: 'Earrings',
-    subcategory: 'earrings',
-    gender: 'women',
-    material: 'Sterling Silver',
-    stock: 30,
-    image: '/images/new_in.jpeg',
-    featured: true,
-    isNew: true,
-  },
-  {
-    id: 'test-neck-001',
-    name: 'Everyday Box Chain',
-    description: 'A lightweight box chain necklace with a smooth sterling finish.',
-    price: 2499,
-    category: 'Necklaces',
-    subcategory: 'necklaces',
-    gender: 'unisex',
-    material: 'Sterling Silver',
-    stock: 18,
-    image: '/images/for_her.jpeg',
-    featured: true,
-    isNew: false,
-  },
-  {
-    id: 'test-bracelet-001',
-    name: 'Slim Charm Bracelet',
-    description: 'A refined bracelet with a small charm and adjustable clasp.',
-    price: 2199,
-    category: 'Bracelets',
-    subcategory: 'bracelets',
-    gender: 'women',
-    material: 'Sterling Silver',
-    stock: 22,
-    image: '/images/gifting.jpeg',
-    featured: true,
-    isNew: false,
-  },
-  {
-    id: 'test-men-ring-001',
-    name: 'Brushed Men Silver Band',
-    description: 'A clean brushed silver band with a bold everyday profile.',
-    price: 2999,
-    category: 'Rings',
-    subcategory: 'rings',
-    gender: 'men',
-    material: 'Sterling Silver',
-    stock: 16,
-    image: '/images/for_him.jpeg',
-    featured: false,
-    isNew: true,
-  },
-  {
-    id: 'test-men-bracelet-001',
-    name: 'Cuban Link Bracelet',
-    description: 'A substantial link bracelet with a bright polished finish.',
-    price: 3999,
-    category: 'Bracelets',
-    subcategory: 'bracelets',
-    gender: 'men',
-    material: 'Sterling Silver',
-    stock: 12,
-    image: '/images/for_him.jpeg',
-    featured: true,
-    isNew: false,
-  },
-  {
-    id: 'test-gift-001',
-    name: 'Gift Ready Pearl Set',
-    description: 'A ready-to-gift necklace and earring set packed for occasions.',
-    price: 4499,
-    category: 'Gifting',
-    subcategory: 'for-her',
-    gender: 'women',
-    material: 'Sterling Silver',
-    stock: 10,
-    image: '/images/gifting.jpeg',
-    featured: true,
-    isNew: true,
-  },
-  {
-    id: 'test-kids-001',
-    name: 'Tiny Star Kids Studs',
-    description: 'Small hypoallergenic silver studs for kids.',
-    price: 999,
-    category: 'Kids',
-    subcategory: 'kids',
-    gender: 'kids',
-    material: 'Sterling Silver',
-    stock: 35,
-    image: '/images/new_in.jpeg',
-    featured: false,
-    isNew: true,
-  },
-  {
-    id: 'test-divine-001',
-    name: 'Om Silver Pendant',
-    description: 'A simple Om pendant in sterling silver for daily devotion.',
-    price: 1799,
-    category: 'Divine',
-    subcategory: 'divine',
-    gender: 'unisex',
-    material: 'Sterling Silver',
-    stock: 20,
-    image: '/images/for_her.jpeg',
-    featured: false,
-    isNew: false,
-  },
-  {
-    id: 'test-chain-001',
-    name: 'Minimal Silver Chain',
-    description: 'A versatile chain that can be worn alone or with a pendant.',
-    price: 1999,
-    category: 'Necklaces',
-    subcategory: 'chains',
-    gender: 'unisex',
-    material: 'Sterling Silver',
-    stock: 28,
-    image: '/images/for_him.jpeg',
-    featured: false,
-    isNew: true,
-  },
-];
+    material: 'Fashion Jewellery',
+    stock: stockForIndex(index),
+    image: `/images/products/${type}/${fileName}`,
+    featured: index < 8,
+    isNew: index < 16,
+    displayType,
+  }));
+}
 
 async function ensureAdminExists() {
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@sterlin.com').trim().toLowerCase();
@@ -174,7 +83,9 @@ async function ensureAdminExists() {
 }
 
 async function seedProducts() {
-  for (const product of testProducts) {
+  const products = [...buildProductsForFolder('ring'), ...buildProductsForFolder('necklace')];
+
+  for (const product of products) {
     await prisma.product.upsert({
       where: { id: product.id },
       update: {
@@ -207,7 +118,9 @@ async function seedProducts() {
     });
   }
 
-  console.log(`Seeded ${testProducts.length} test products.`);
+  console.log(`Seeded ${products.length} image-backed products.`);
+  console.log(`Rings: ${products.filter((product) => product.displayType === 'ring').length}`);
+  console.log(`Necklaces: ${products.filter((product) => product.displayType === 'necklace').length}`);
 }
 
 async function main() {
