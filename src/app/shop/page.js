@@ -11,7 +11,7 @@ const CATEGORIES = [
   "Pendants", "Accessories", "Kids", "Divine", "Gifting", "Corporate"
 ];
 
-const MATERIALS = ["Sterling Silver", "Mixed Metals", "Gold Plated", "18K Solid Gold", "White Gold"];
+const MATERIALS = ["Fashion Jewellery", "Sterling Silver", "Mixed Metals", "Gold Plated", "18K Solid Gold", "White Gold"];
 
 import { Suspense } from 'react';
 

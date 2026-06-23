@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { filterCatalogProducts, getCatalogProducts } from "@/lib/catalog";
 
 export async function GET(request) {
   try {
@@ -31,19 +32,39 @@ export async function GET(request) {
       ];
     }
 
-    const products = await db.product.findMany({
-      where,
-      orderBy: {
-        createdAt: 'desc'
-      }
+    let dbProducts = [];
+
+    try {
+      const products = await db.product.findMany({
+        where,
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      dbProducts = products.map(p => ({
+        ...p,
+        images: JSON.parse(p.images || "[]")
+      }));
+    } catch (dbError) {
+      console.warn("Database products unavailable, serving file catalog only:", dbError.message);
+    }
+
+    const catalogProducts = filterCatalogProducts(getCatalogProducts(), {
+      category,
+      material,
+      featured,
+      gender,
+      q,
     });
 
-    const converted = products.map(p => ({
-      ...p,
-      images: JSON.parse(p.images || "[]")
-    }));
+    const existingIds = new Set(dbProducts.map((product) => product.id));
+    const merged = [
+      ...catalogProducts.filter((product) => !existingIds.has(product.id)),
+      ...dbProducts,
+    ];
 
-    return NextResponse.json(converted);
+    return NextResponse.json(merged);
   } catch (error) {
     console.error("Failed to fetch products:", error);
     return NextResponse.json(

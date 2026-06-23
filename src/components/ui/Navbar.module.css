@@ -144,10 +144,21 @@
 
 @media (max-width: 430px) {
   .accountLink {
-    display: none;
+    display: inline-flex;
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
   }
 
   .cartIcon {
-    font-size: 0.68rem;
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+  }
+
+  .menu {
+    gap: 0.65rem;
+  }
+
+  .searchIcon {
+    display: none;
   }
 }

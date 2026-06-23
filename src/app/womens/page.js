@@ -7,7 +7,7 @@ import ProductFilters from '@/components/ui/ProductFilters';
 import styles from '../shop/shop.module.css';
 
 const CATEGORIES = ["Rings", "Earrings", "Necklaces", "Bracelets", "Charms & Amulets"];
-const MATERIALS = ["Sterling Silver", "Mixed Metals", "Gold Plated"];
+const MATERIALS = ["Fashion Jewellery", "Sterling Silver", "Mixed Metals", "Gold Plated"];
 
 import { Suspense } from 'react';
 
