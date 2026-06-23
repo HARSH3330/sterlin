@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getAuthUser } from './lib/auth';
+import { COOKIE_NAME, verifyToken } from './lib/auth';
 
 export async function middleware(request) {
-  const user = await getAuthUser();
+  const token = request.cookies.get(COOKIE_NAME)?.value;
+  const user = token ? await verifyToken(token) : null;
   const { pathname } = request.nextUrl;
 
   // Protect admin routes

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { getDb } from '@/lib/db';
 import { getAuthUser } from '@/lib/auth';
-import { randomUUID } from 'crypto';
 
 export async function POST(request) {
   try {
@@ -19,10 +18,26 @@ export async function POST(request) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    if (!process.env.RAZORPAY_KEY_SECRET) {
+      return NextResponse.json({ error: 'Payment gateway configuration error' }, { status: 500 });
+    }
+    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+      return NextResponse.json({ error: 'Missing payment verification details' }, { status: 400 });
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: 'Order has no items' }, { status: 400 });
+    }
+
+    const computedTotal = items.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
+      0
+    );
+    if (!Number.isFinite(computedTotal) || Math.abs(computedTotal - Number(total)) > 0.01) {
+      return NextResponse.json({ error: 'Order total mismatch' }, { status: 400 });
+    }
 
     // 1. Verify signature
-    const secret = process.env.RAZORPAY_KEY_SECRET;
-    const hmac = crypto.createHmac('sha256', secret);
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const generated_signature = hmac.digest('hex');
 

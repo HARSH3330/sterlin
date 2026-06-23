@@ -1,141 +1,94 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import styles from "./page.module.css";
-import Scene2 from "@/components/ui/Scene2";
-import Scene3 from "@/components/ui/Scene3";
-import Scene4 from "@/components/ui/Scene4";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import styles from "./page.module.css";
 import CategorySection from "@/components/ui/CategorySection";
 import ProductGrid from "@/components/ui/ProductGrid";
 
+const heroTiles = [
+  { label: "New In", href: "/new-in", image: "/images/new_in.jpeg" },
+  { label: "For Her", href: "/womens", image: "/images/for_her.jpeg" },
+  { label: "For Him", href: "/mens", image: "/images/for_him.jpeg" },
+];
 
-const HeroCanvas = dynamic(() => import("@/components/ui/HeroCanvas"), {
-  ssr: false,
-  loading: () => null,
-});
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
-const sideCategories = [
-  { label: "Rings", href: "/womens/rings" },
-  { label: "Earrings", href: "/womens/earrings" },
-  { label: "Necklaces", href: "/womens/necklaces" },
-  { label: "Bracelets", href: "/womens/bracelets" },
+const quickLinks = [
+  { label: "Rings", href: "/shop?category=Rings" },
+  { label: "Earrings", href: "/shop?category=Earrings" },
+  { label: "Necklaces", href: "/shop?category=Necklaces" },
+  { label: "Bracelets", href: "/shop?category=Bracelets" },
+  { label: "Gifting", href: "/gifts" },
 ];
 
 export default function Home() {
-  const heroRef = useRef();
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Hero title reveal
-      gsap.fromTo(
-        `.${styles.heroTitle}`,
-        { y: 80, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.4, ease: "power3.out", delay: 0.2 }
-      );
-      // Subtitle
-      gsap.fromTo(
-        `.${styles.heroTagline}`,
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: "power2.out", delay: 0.7 }
-      );
-      // CTA
-      gsap.fromTo(
-        `.${styles.heroCta}`,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out", delay: 1.0 }
-      );
-      // Side categories stagger
-      gsap.fromTo(
-        `.${styles.sideItem}`,
-        { x: 30, opacity: 0 },
-        { x: 0, opacity: 1, stagger: 0.12, duration: 0.7, ease: "power2.out", delay: 1.1 }
-      );
-      // Scroll parallax on title
-      gsap.to(`.${styles.heroCenter}`, {
-        y: -120, opacity: 0, ease: "none",
-        scrollTrigger: {
-          trigger: `.${styles.hero}`,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-    }, heroRef);
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <div ref={heroRef} className={styles.container}>
-
-      {/* ─── HERO ────────────────────────────────────────────── */}
-      <section className={styles.hero}>
-        {/* Faded large decorative "COLLECTION 2025" text top-left */}
-        <span className={styles.heroDecorText}>COLLECTION<br />2025</span>
-
-        {/* 3D Canvas behind everything */}
-        <div className={styles.canvasContainer}>
-          <HeroCanvas />
-        </div>
-
-        {/* Center content */}
-        <div className={styles.heroCenter}>
-          <p className={styles.heroEyebrow}>
-            <span />A celestial touch for timeless moments
-          </p>
-          <h1 className={styles.heroTitle}>STERLY</h1>
-          <p className={styles.heroTagline}>
-            Discover exquisite jewellery inspired by<br />
-            the beauty of the heavens.
-          </p>
-          <Link href="/shop" className={styles.heroCta}>
-            Discover <span>→</span>
-          </Link>
-        </div>
-
-        {/* Right side category nav */}
-        <nav className={styles.sideNav} aria-label="Category navigation">
-          {sideCategories.map((cat) => (
-            <Link key={cat.label} href={cat.href} className={styles.sideItem}>
-              {cat.label} <span className={styles.sideArrow}>+</span>
+    <div className={styles.container}>
+      <section className={styles.hero} aria-label="Sterly featured collections">
+        <div className={styles.heroGrid}>
+          {heroTiles.map((tile, index) => (
+            <Link
+              key={tile.label}
+              href={tile.href}
+              className={`${styles.heroTile} ${index === 0 ? styles.heroTileLarge : ""}`}
+            >
+              <Image
+                src={tile.image}
+                alt={tile.label}
+                fill
+                priority={index === 0}
+                sizes={index === 0 ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 50vw, 25vw"}
+                className={styles.heroImage}
+              />
+              <span>{tile.label}</span>
             </Link>
           ))}
-        </nav>
+        </div>
 
-        {/* Scroll indicator */}
-        <div className={styles.scrollHint}>
-          <span />
-          <p>Scroll</p>
+        <div className={styles.heroIntro}>
+          <p className={styles.kicker}>Sterling silver jewellery</p>
+          <h1>STERLY</h1>
+          <p>Clean everyday pieces, statement gifts, and occasion-ready silver.</p>
+          <div className={styles.heroActions}>
+            <Link href="/shop">Shop all</Link>
+            <Link href="/new-in">New arrivals</Link>
+          </div>
         </div>
       </section>
 
-      <section className={styles.categorySection}>
-        <CategorySection />
-      </section>
+      <nav className={styles.quickLinks} aria-label="Popular categories">
+        {quickLinks.map((item) => (
+          <Link key={item.label} href={item.href}>
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
+      <CategorySection />
 
       <section className={styles.featured}>
-        <div className={styles.featuredHeader}>
-          <h2 className={styles.featuredTitle}>Most Loved Products</h2>
-          <p className={styles.featuredDesc}>Our signature pieces, hand-picked for their celestial beauty.</p>
+        <div className={styles.sectionHeader}>
+          <p className={styles.kicker}>Most loved</p>
+          <h2>Shop The Edit</h2>
+          <Link href="/shop">View all</Link>
         </div>
-        <div className={styles.featuredGrid}>
-           <FeaturedProducts />
-        </div>
-        <div className={styles.featuredFooter}>
-          <Link href="/shop" className={styles.viewAllBtn}>View All Collection</Link>
-        </div>
+        <FeaturedProducts />
       </section>
 
-      <Scene2 />
-      <Scene3 />
-      <Scene4 />
+      <section className={styles.lookbook}>
+        <Image
+          src="/images/gifting.jpeg"
+          alt="Sterly gifting collection"
+          fill
+          sizes="100vw"
+          className={styles.lookbookImage}
+        />
+        <div className={styles.lookbookContent}>
+          <p className={styles.kicker}>Ready to gift</p>
+          <h2>Small boxes, lasting moments.</h2>
+          <Link href="/gifts">Explore gifts</Link>
+        </div>
+      </section>
     </div>
   );
 }
@@ -145,11 +98,12 @@ function FeaturedProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/products?featured=true')
-      .then(res => res.json())
-      .then(data => { setProducts(data.slice(0, 4)); setLoading(false); });
+    fetch("/api/products?featured=true")
+      .then((res) => res.json())
+      .then((data) => setProducts(data.slice(0, 8)))
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
   }, []);
 
   return <ProductGrid products={products} loading={loading} />;
 }
-

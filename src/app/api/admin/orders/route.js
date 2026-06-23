@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
+import { requireAdmin } from '@/lib/admin';
 
 export async function GET() {
   try {
+    const { response } = await requireAdmin();
+    if (response) return response;
+
     const db = getDb();
     const orders = await db.order.findMany({
       orderBy: { createdAt: 'desc' }

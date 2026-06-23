@@ -5,8 +5,10 @@ import { hashPassword, setAuthCookie } from '@/lib/auth';
 export async function POST(request) {
   try {
     const { name, email, password } = await request.json();
+    const normalizedEmail = email?.trim().toLowerCase();
+    const normalizedName = name?.trim();
 
-    if (!name || !email || !password) {
+    if (!normalizedName || !normalizedEmail || !password) {
       return NextResponse.json(
         { error: 'Name, email, and password are required' },
         { status: 400 }
@@ -23,7 +25,7 @@ export async function POST(request) {
     const db = getDb();
 
     // Check if user already exists
-    const existing = await db.user.findUnique({ where: { email } });
+    const existing = await db.user.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
       return NextResponse.json(
         { error: 'An account with this email already exists' },
@@ -35,14 +37,14 @@ export async function POST(request) {
     
     const userRecord = await db.user.create({
       data: {
-        name,
-        email,
+        name: normalizedName,
+        email: normalizedEmail,
         password: hashedPassword,
         role: 'customer',
       }
     });
 
-    const user = { id: userRecord.id, name, email, role: 'customer' };
+    const user = { id: userRecord.id, name: normalizedName, email: normalizedEmail, role: 'customer' };
     await setAuthCookie(user);
 
     return NextResponse.json({ user }, { status: 201 });

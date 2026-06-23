@@ -1,24 +1,40 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
-import { randomUUID } from 'crypto';
+import { requireAdmin } from '@/lib/admin';
 
 export async function POST(request) {
   try {
+    const { response } = await requireAdmin();
+    if (response) return response;
+
     const data = await request.json();
+    const price = Number(data.price);
+    const stock = Number(data.stock ?? 50);
+
+    if (!data.name || !data.description || !data.category || !data.material) {
+      return NextResponse.json({ error: 'Name, description, category, and material are required' }, { status: 400 });
+    }
+    if (!Number.isFinite(price) || price <= 0) {
+      return NextResponse.json({ error: 'Price must be a positive number' }, { status: 400 });
+    }
+    if (!Number.isInteger(stock) || stock < 0) {
+      return NextResponse.json({ error: 'Stock must be a non-negative integer' }, { status: 400 });
+    }
+
     const db = getDb();
     const product = await db.product.create({
       data: {
-        name: data.name,
-        description: data.description,
-        price: data.price,
+        name: data.name.trim(),
+        description: data.description.trim(),
+        price,
         category: data.category,
         subcategory: data.subcategory || '',
         gender: data.gender || 'unisex',
         material: data.material,
-        images: data.images || '[]',
+        images: Array.isArray(data.images) ? JSON.stringify(data.images) : data.images || '[]',
         featured: Boolean(data.featured),
         isNew: Boolean(data.isNew),
-        stock: data.stock || 50
+        stock,
       }
     });
 

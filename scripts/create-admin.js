@@ -1,35 +1,39 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-const dbPath = path.resolve(__dirname, '../prisma/dev.db');
-const db = new Database(dbPath);
+const prisma = new PrismaClient();
 
 async function createAdmin() {
-  const email = process.env.ADMIN_EMAIL || "admin@sterlin.com";
-  const password = process.env.ADMIN_PASSWORD || "admin123";
-  
-  console.log(`Checking for admin: ${email}...`);
+  const email = (process.env.ADMIN_EMAIL || 'admin@sterlin.com').trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD || 'admin123';
 
-  const existing = db.prepare('SELECT id FROM User WHERE email = ?').get(email);
-  
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const now = new Date().toISOString();
-
+  const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    console.log(`Admin user already exists. Updating password...`);
-    db.prepare('UPDATE User SET password = ?, role = ? WHERE id = ?').run(hashedPassword, 'admin', existing.id);
-    console.log(`✅ Admin updated successfully.`);
-  } else {
-    console.log(`Creating new admin user...`);
-    const id = uuidv4();
-    db.prepare(
-      'INSERT INTO User (id, name, email, password, role, createdAt) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(id, "Sterlin Admin", email, hashedPassword, 'admin', now);
-    console.log(`✅ Admin created successfully.`);
+    console.log(`Admin already exists: ${email}. Existing ID and password were not changed.`);
+    return;
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await prisma.user.create({
+    data: {
+      id: 'admin-001',
+      name: 'Sterlin Admin',
+      email,
+      password: hashedPassword,
+      role: 'admin',
+    },
+  });
+
+  console.log(`Admin created: ${email}`);
 }
 
-createAdmin().catch(console.error).finally(() => db.close());
+createAdmin()
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

@@ -19,31 +19,39 @@ export const useAuth = create((set) => ({
   },
 
   login: async (email, password) => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      set({ user: data.user });
-      return { success: true };
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        set({ user: data.user, loading: false });
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: data.error };
+    } catch {
+      return { success: false, error: 'Unable to sign in. Please try again.' };
     }
-    return { success: false, error: data.error };
   },
 
   signup: async (name, email, password) => {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      set({ user: data.user });
-      return { success: true };
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        set({ user: data.user, loading: false });
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: data.error };
+    } catch {
+      return { success: false, error: 'Unable to create account. Please try again.' };
     }
-    return { success: false, error: data.error };
   },
 
   logout: async () => {

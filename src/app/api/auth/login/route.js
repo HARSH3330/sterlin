@@ -5,8 +5,9 @@ import { comparePassword, setAuthCookie } from '@/lib/auth';
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
+    const normalizedEmail = email?.trim().toLowerCase();
 
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
@@ -14,7 +15,7 @@ export async function POST(request) {
     }
 
     const db = getDb();
-    const user = await db.user.findUnique({ where: { email } });
+    const user = await db.user.findUnique({ where: { email: normalizedEmail } });
 
     if (!user) {
       return NextResponse.json(

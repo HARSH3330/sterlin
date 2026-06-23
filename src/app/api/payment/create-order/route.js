@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
+import { getAuthUser } from '@/lib/auth';
 
 export async function POST(request) {
   try {
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Please sign in before checkout' }, { status: 401 });
+    }
+
     if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
       console.error("Missing Razorpay environment variables");
       return NextResponse.json(
@@ -17,9 +23,14 @@ export async function POST(request) {
     });
 
     const { amount } = await request.json();
+    const numericAmount = Number(amount);
+
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      return NextResponse.json({ error: 'Invalid checkout amount' }, { status: 400 });
+    }
 
     const options = {
-      amount: Math.round(amount * 100), // Razorpay expects paise
+      amount: Math.round(numericAmount * 100), // Razorpay expects paise
       currency: 'INR',
       receipt: `receipt_${Date.now()}`,
     };

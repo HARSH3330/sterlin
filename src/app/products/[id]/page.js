@@ -1,129 +1,96 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { use, useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useCart } from "@/hooks/useCart";
 import styles from "./page.module.css";
-import { useState, useEffect, use } from "react";
-import Link from "next/link";
-
-// Lazy-load 3D viewer – skips SSR and creates a separate JS chunk for Three.js
-const ModelViewer = dynamic(() => import("@/components/ui/ModelViewer"), {
-  ssr: false,
-  loading: () => (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "rgba(245,240,232,0.3)",
-        fontSize: "0.75rem",
-        letterSpacing: "0.2em",
-      }}
-    >
-      LOADING 3D MODEL...
-    </div>
-  ),
-});
 
 export default function ProductDetail({ params }) {
   const { id } = use(params);
   const [product, setProduct] = useState(null);
   const [notFound, setNotFound] = useState(false);
-  const addItem = useCart((state) => state.addItem);
   const [added, setAdded] = useState(false);
+  const addItem = useCart((state) => state.addItem);
+  const toggleCart = useCart((state) => state.toggleCart);
 
   useEffect(() => {
     async function fetchProduct() {
       try {
         const res = await fetch(`/api/products/${id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setProduct(data);
-        } else {
+        if (!res.ok) {
           setNotFound(true);
+          return;
         }
-      } catch (err) {
-        console.error("Failed", err);
+        setProduct(await res.json());
+      } catch {
         setNotFound(true);
       }
     }
+
     fetchProduct();
   }, [id]);
 
   const handleAdd = () => {
-    if (product) {
-      addItem(product);
-      setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
-    }
+    if (!product) return;
+    addItem(product);
+    setAdded(true);
+    toggleCart();
+    setTimeout(() => setAdded(false), 1600);
   };
 
-  if (notFound)
+  if (notFound) {
     return (
       <div className={styles.loading}>
-        <p style={{ fontSize: "1.2rem", marginBottom: "1.5rem" }}>Product not found.</p>
-        <Link
-          href="/products"
-          className={styles.backLink}
-          style={{ position: "static", fontSize: "1rem" }}
-        >
-          ← Back to Collection
-        </Link>
+        <p>Product not found.</p>
+        <Link href="/shop" className={styles.backLinkInline}>Back to shop</Link>
       </div>
     );
+  }
 
   if (!product) return <div className={styles.loading}>Loading...</div>;
 
+  const image = Array.isArray(product.images) ? product.images[0] : null;
+
   return (
     <div className={styles.container}>
-      <Link href="/products" className={styles.backLink}>
-        ← Back to Collection
-      </Link>
+      <Link href="/shop" className={styles.backLink}>Back to shop</Link>
 
-      <div className={styles.viewerSection}>
-        <div className={styles.canvasWrapper}>
-          <ModelViewer category={product.category} />
-          <div className={styles.viewerHint}>Drag to rotate. Scroll to zoom.</div>
+      <section className={styles.gallery}>
+        <div className={styles.mainImage}>
+          {image ? (
+            <Image src={image} alt={product.name} fill priority sizes="(max-width: 900px) 100vw, 52vw" className={styles.productImage} />
+          ) : (
+            <span>{product.name.charAt(0)}</span>
+          )}
         </div>
-      </div>
+      </section>
 
-      <div className={styles.infoSection}>
-        <p className={styles.category}>
-          {product.category} / {product.material}
-        </p>
+      <section className={styles.infoSection}>
+        <p className={styles.category}>{product.category} / {product.material}</p>
         <h1 className={styles.title}>{product.name}</h1>
-        <p className={styles.price}>${product.price.toFixed(2)}</p>
-
+        <p className={styles.price}>Rs. {product.price.toLocaleString()}</p>
         <p className={styles.description}>{product.description}</p>
 
-        <div className={styles.actions}>
-          <button
-            className={`${styles.addToCart} ${added ? styles.added : ""}`}
-            onClick={handleAdd}
-          >
-            {added ? "ADDED TO CART ✓" : "ADD TO CART"}
-          </button>
-        </div>
+        <button className={`${styles.addToCart} ${added ? styles.added : ""}`} onClick={handleAdd}>
+          {added ? "Added" : "Add to Cart"}
+        </button>
 
         <div className={styles.details}>
           <div className={styles.detailItem}>
-            <h4>Premium Quality</h4>
-            <p>
-              Our pieces are made to last forever. They will not oxidize or discolor, so you
-              can wear your jewelry every day, everywhere.
-            </p>
+            <h4>Material</h4>
+            <p>{product.material}</p>
           </div>
           <div className={styles.detailItem}>
-            <h4>Fair Pricing</h4>
-            <p>
-              By cutting out traditional retail markups, we bring you the finest materials at
-              a fraction of the price.
-            </p>
+            <h4>Shipping</h4>
+            <p>Complimentary shipping on eligible orders. Packed ready for gifting.</p>
+          </div>
+          <div className={styles.detailItem}>
+            <h4>Care</h4>
+            <p>Keep dry, store separately, and polish gently with a soft jewellery cloth.</p>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

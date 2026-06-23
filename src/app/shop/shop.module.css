@@ -1,65 +1,78 @@
 .container {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 120px 40px 80px;
+  padding: 112px 18px 58px;
 }
 
 .header {
-  margin-bottom: 80px;
-  text-align: center;
+  margin-bottom: 28px;
+}
+
+.headerContent {
+  display: grid;
+  gap: 8px;
 }
 
 .title {
-  font-size: 4rem;
-  font-family: var(--font-serif);
-  margin-bottom: 15px;
-  letter-spacing: -0.01em;
+  font-size: clamp(2.3rem, 8vw, 4rem);
+  line-height: 1;
 }
 
 .subtitle {
+  max-width: 560px;
   color: var(--text-muted);
-  font-size: 1.1rem;
-  max-width: 600px;
-  margin: 0 auto;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 .main {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 60px;
+  grid-template-columns: 220px 1fr;
+  gap: 34px;
+}
+
+.content {
+  min-width: 0;
 }
 
 .resultsHeader {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 30px;
-  padding-bottom: 15px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
 }
 
 .count {
-  font-size: 0.85rem;
   color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
+  .container {
+    padding-top: 104px;
+  }
+
   .main {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
-  
+
   .sidebar {
-    display: none; /* In a real app we'd add a mobile filter drawer */
-  }
-  
-  .title {
-    font-size: 3rem;
+    min-width: 0;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 520px) {
   .container {
-    padding: 100px 20px 40px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .header {
+    margin-bottom: 22px;
   }
 }

@@ -6,7 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'sterlin-fallback-secret'
 );
 
-const COOKIE_NAME = 'sterlin-auth';
+export const COOKIE_NAME = 'sterlin-auth';
 
 export async function hashPassword(password) {
   return bcrypt.hash(password, 10);
