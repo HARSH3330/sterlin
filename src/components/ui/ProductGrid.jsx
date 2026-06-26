@@ -2,11 +2,20 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
 import styles from "./ProductGrid.module.css";
 
 export default function ProductGrid({ products, loading }) {
   const { addItem, toggleCart } = useCart();
+  const router = useRouter();
+  const { items: wishlistItems, fetchWishlist, toggleWishlist } = useWishlist();
+
+  useEffect(() => {
+    fetchWishlist();
+  }, [fetchWishlist]);
 
   if (loading) {
     return (
@@ -35,23 +44,40 @@ export default function ProductGrid({ products, loading }) {
     <div className={styles.grid}>
       {products.map((product) => {
         const image = Array.isArray(product.images) ? product.images[0] : null;
+        const isWishlisted = wishlistItems.some((item) => item.id === product.id);
 
         return (
           <div key={product.id} className={styles.productCard}>
-            <Link href={`/products/${product.id}`} className={styles.imageWrapper}>
-              {product.isNew && <span className={styles.badge}>New</span>}
-              {image ? (
-                <Image
-                  src={image}
-                  alt={product.name}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className={styles.productImage}
-                />
-              ) : (
-                <div className={styles.placeholderImg}>{product.name.charAt(0)}</div>
-              )}
-            </Link>
+            <div className={styles.imageShell}>
+              <Link href={`/products/${product.id}`} className={styles.imageWrapper}>
+                {product.isNew && <span className={styles.badge}>New</span>}
+                {image ? (
+                  <Image
+                    src={image}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className={styles.productImage}
+                  />
+                ) : (
+                  <div className={styles.placeholderImg}>{product.name.charAt(0)}</div>
+                )}
+              </Link>
+              <button
+                type="button"
+                className={`${styles.wishlistButton} ${isWishlisted ? styles.wishlistButtonActive : ""}`}
+                aria-label={`${isWishlisted ? "View" : "Add to"} wishlist`}
+                title={`${isWishlisted ? "View" : "Add to"} wishlist`}
+                onClick={async () => {
+                  if (!isWishlisted) {
+                    await toggleWishlist(product);
+                  }
+                  router.push("/wishlist");
+                }}
+              >
+                <span aria-hidden="true">{isWishlisted ? "♥" : "♡"}</span>
+              </button>
+            </div>
 
             <div className={styles.productInfo}>
               <Link href={`/products/${product.id}`}>
