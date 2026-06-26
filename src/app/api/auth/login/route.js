@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { comparePassword, setAuthCookie } from '@/lib/auth';
+import { findFallbackUser, isDatabaseUnavailable } from '@/lib/fallbackAuthStore';
 
 export async function POST(request) {
   try {
@@ -14,8 +15,27 @@ export async function POST(request) {
       );
     }
 
-    const db = getDb();
-    const user = await db.user.findUnique({ where: { email: normalizedEmail } });
+    let user;
+
+    try {
+      const db = getDb();
+      user = await db.user.findUnique({ where: { email: normalizedEmail } });
+    } catch (dbError) {
+      if (!isDatabaseUnavailable(dbError)) throw dbError;
+
+      console.error('Login database unavailable, using fallback auth:', dbError.message);
+      const fallbackUser = await findFallbackUser(normalizedEmail, password);
+
+      if (!fallbackUser) {
+        return NextResponse.json(
+          { error: 'Invalid email or password' },
+          { status: 401 }
+        );
+      }
+
+      await setAuthCookie(fallbackUser);
+      return NextResponse.json({ user: fallbackUser });
+    }
 
     if (!user) {
       return NextResponse.json(

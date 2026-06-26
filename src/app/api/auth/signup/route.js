@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { hashPassword, setAuthCookie } from '@/lib/auth';
+import { createFallbackCustomer, isDatabaseUnavailable } from '@/lib/fallbackAuthStore';
 
 export async function POST(request) {
   try {
@@ -22,10 +23,34 @@ export async function POST(request) {
       );
     }
 
-    const db = getDb();
+    let db;
 
     // Check if user already exists
-    const existing = await db.user.findUnique({ where: { email: normalizedEmail } });
+    let existing;
+    try {
+      db = getDb();
+      existing = await db.user.findUnique({ where: { email: normalizedEmail } });
+    } catch (dbError) {
+      if (!isDatabaseUnavailable(dbError)) throw dbError;
+
+      console.error('Signup database unavailable, using fallback customer store:', dbError.message);
+      const fallbackResult = await createFallbackCustomer({
+        name: normalizedName,
+        email: normalizedEmail,
+        password,
+      });
+
+      if (fallbackResult.error) {
+        return NextResponse.json(
+          { error: fallbackResult.error },
+          { status: fallbackResult.status }
+        );
+      }
+
+      await setAuthCookie(fallbackResult.user);
+      return NextResponse.json({ user: fallbackResult.user }, { status: 201 });
+    }
+
     if (existing) {
       return NextResponse.json(
         { error: 'An account with this email already exists' },
