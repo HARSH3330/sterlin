@@ -1,27 +1,19 @@
-# Sterly+ | High Jewellery E-Commerce
+# Sterly Jewellery E-Commerce
 
-> A cinematic, full-stack jewellery e-commerce experience built with **Next.js 16**, **React Three Fiber**, **GSAP**, **SQLite**, and **Razorpay**.
+A full-stack jewellery e-commerce site built with Next.js 16, React, Prisma, PostgreSQL, Zustand, and Razorpay.
 
-![Hero](https://img.shields.io/badge/Next.js-16-black?logo=next.js) ![Three.js](https://img.shields.io/badge/Three.js-R3F-orange) ![SQLite](https://img.shields.io/badge/Database-SQLite-blue) ![Razorpay](https://img.shields.io/badge/Payments-Razorpay-blue)
+## Features
 
----
+- Image-first jewellery catalog for rings, necklaces, earrings, bracelets, gifting, and more.
+- JWT login/signup with protected admin, account, and checkout routes.
+- Admin dashboard for products and orders.
+- Cart, checkout, wishlist, and customer account flows.
+- Razorpay payment integration.
+- Prisma-backed PostgreSQL database with product, user, order, and wishlist models.
 
-## ✨ Features
+## Getting Started
 
-- **3D Product Viewer** — Interactive high-end jewellery models rendered with React Three Fiber.
-- **Full-Stack Authentication** — Secure JWT-based login/signup with protected admin and account routes.
-- **Cinematic Homepage** — GSAP ScrollTrigger parallax across editorial scenes with a dynamic "Most Loved Products" grid.
-- **Admin Dashboard** — Complete control center for inventory (CRUD) and order management.
-- **Integrated Payments** — Seamless Razorpay checkout with secure backend signature verification.
-- **Advanced Search** — Debounced search overlay for instant discovery of pieces.
-- **Wishlist & Accounts** — Personalized customer accounts with order history and curated wishlists.
-- **Diverse Catalog** — Dynamic categories for Women's, Men's, Kids, Divine, Gifting, and more.
-
----
-
-## 🚀 Getting Started
-
-### 1. Clone & Install
+### 1. Install
 
 ```bash
 git clone https://github.com/HARSH3330/sterlin.git
@@ -29,89 +21,98 @@ cd sterlin
 npm install
 ```
 
-### 2. Environment Setup
+### 2. Environment
 
-Create a `.env` file in the root directory:
+Create `.env` in the project root:
+
 ```env
-JWT_SECRET=your_secret_key
-RAZORPAY_KEY_ID=your_razorpay_id
-RAZORPAY_KEY_SECRET=your_razorpay_secret
-NEXT_PUBLIC_RAZORPAY_KEY_ID=your_razorpay_id
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+JWT_SECRET="replace-with-a-long-random-secret"
+
+ADMIN_EMAIL="admin@sterlin.com"
+ADMIN_PASSWORD="admin123"
+
+RAZORPAY_KEY_ID="rzp_test_xxxxxxxxxxxxx"
+RAZORPAY_KEY_SECRET="xxxxxxxxxxxxxxxxxxxx"
+NEXT_PUBLIC_RAZORPAY_KEY_ID="rzp_test_xxxxxxxxxxxxx"
 ```
 
-### 3. Database Initialization
+### 3. Database
 
 ```bash
-node prisma/seed.js
+npm run db:deploy
+npm run db:seed
 ```
-This seeds the `prisma/dev.db` with 34 luxury products and a default admin user.
 
-### 4. Launch
+`db:deploy` creates the PostgreSQL tables from the committed Prisma migration. `db:seed` creates the default admin only if it does not already exist, then seeds the ring and necklace product catalog.
+
+### 4. Run Locally
 
 ```bash
 npm run dev
 ```
+
 Open [http://localhost:3000](http://localhost:3000).
 
----
-
-## 🔒 Access Credentials
-
-To test the admin and customer features, use these pre-seeded accounts:
+## Admin Login
 
 | Role | Email | Password |
 |---|---|---|
-| **Admin** | `admin@sterlin.com` | `admin123` |
-| **Customer** | *(Register via Signup page)* | *Min 6 chars* |
+| Admin | `admin@sterlin.com` | `admin123` |
+| Customer | Register from `/signup` | Minimum 6 characters |
 
----
+## Production Database on Vercel
 
-## 🗂 Project Structure
+1. Create or connect a Postgres database in the Vercel project dashboard.
+2. Add the pooled connection string to Vercel Environment Variables as `DATABASE_URL`.
+3. Add `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in Vercel Environment Variables.
+4. Redeploy the project.
+5. Run the database setup commands from a terminal that has the same `DATABASE_URL`:
 
-```
-/src
-  /app
-    /api                 ← REST API (Auth, Products, Payments, Admin)
-    /admin               ← Admin Panel (Dashboard, Products, Orders)
-    /account             ← User Profile & Order History
-    /shop                ← Dynamic Product Catalog
-    /cart                ← Full Shopping Bag
-    /checkout            ← Secure Checkout with Razorpay
-    /products/[id]       ← Detailed View + 3D Model
-    /wishlist            ← Favorited Pieces
-  /components/ui         ← Core UI Components (3D scenes, Grid, Filters)
-  /hooks                 ← Custom React hooks (useCart, useAuth, useWishlist)
-  /lib                   ← Database & Auth Utilities
-/prisma
-  schema.prisma          ← SQLite Schema
-  seed.js                ← Product & User Seeder
+```bash
+npm install
+npm run db:deploy
+npm run db:seed
 ```
 
----
+After this, admin login and customer registration persist in PostgreSQL. If `DATABASE_URL` is missing, the app has a temporary fallback auth mode so login/signup do not hard-crash, but that fallback is not a replacement for a real production database.
 
-## 🛠 Tech Stack
+## Useful Scripts
+
+```bash
+npm run dev        # local development
+npm run build      # production build
+npm start          # start production server
+npm run db:deploy  # apply committed Prisma migrations
+npm run db:push    # sync schema without migrations, useful for quick dev only
+npm run db:seed    # create admin and seed products
+npm run db:studio  # open Prisma Studio
+```
+
+## Project Structure
+
+```text
+src/app/api          API routes for auth, products, orders, payments, admin
+src/app/admin        Admin dashboard
+src/app/shop         Product catalog
+src/app/cart         Cart page
+src/app/checkout     Checkout flow
+src/components/ui    Shared UI components
+src/hooks            Zustand stores and client hooks
+src/lib              Auth, database, and catalog helpers
+prisma               Prisma schema, migrations, and seed script
+public/images        Site and product images
+```
+
+## Tech Stack
 
 | Layer | Tech |
 |---|---|
-| **Framework** | Next.js 16 (App Router) |
-| **3D Engine** | React Three Fiber + Drei |
-| **Animation** | GSAP + ScrollTrigger |
-| **State** | Zustand (with Persist Middleware) |
-| **Database** | SQLite via better-sqlite3 |
-| **Auth** | JWT + Jose + Bcryptjs |
-| **Payments** | Razorpay SDK |
-| **Styling** | Vanilla CSS Modules |
+| Framework | Next.js 16 App Router |
+| UI | React 19, CSS Modules |
+| State | Zustand |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Auth | JWT, Jose, Bcryptjs |
+| Payments | Razorpay |
 
----
-
-## 📦 Production Build
-
-```bash
-npm run build   # optimize for production
-npm start       # launch production server
-```
-
----
-
-## ⚖️ License
-© 2025 Sterly Jewellery. All rights reserved.
