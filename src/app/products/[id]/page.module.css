@@ -90,6 +90,22 @@
   font-weight: 700;
 }
 
+.stock,
+.outOfStock {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.stock {
+  color: #2f855a;
+}
+
+.outOfStock {
+  color: #c53030;
+}
+
 .description {
   max-width: 560px;
   color: var(--text-muted);
@@ -111,6 +127,12 @@
 
 .addToCart.added {
   background: #2f855a;
+}
+
+.addToCart:disabled {
+  cursor: not-allowed;
+  background: #c9c9c9;
+  color: #ffffff;
 }
 
 .details {

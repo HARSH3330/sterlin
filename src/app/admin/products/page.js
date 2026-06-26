@@ -7,11 +7,17 @@ import styles from '../admin.module.css';
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/products')
-      .then(res => res.json())
-      .then(data => { setProducts(data); setLoading(false); });
+    fetch('/api/admin/products')
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to load products');
+        setProducts(data);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleDelete = async (id) => {
@@ -19,6 +25,9 @@ export default function AdminProductsPage() {
       const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
       if (res.ok) {
         setProducts(products.filter(p => p.id !== id));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to delete product');
       }
     }
   };
@@ -41,14 +50,17 @@ export default function AdminProductsPage() {
               <th>Category</th>
               <th>Price</th>
               <th>Material</th>
+              <th>Stock</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="5" className={styles.centered}>Loading products...</td></tr>
+              <tr><td colSpan="6" className={styles.centered}>Loading products...</td></tr>
+            ) : error ? (
+              <tr><td colSpan="6" className={styles.centered}>{error}</td></tr>
             ) : products.length === 0 ? (
-              <tr><td colSpan="5" className={styles.centered}>No products found.</td></tr>
+              <tr><td colSpan="6" className={styles.centered}>No products found.</td></tr>
             ) : (
               products.map((product) => (
                 <tr key={product.id}>
@@ -59,6 +71,7 @@ export default function AdminProductsPage() {
                   <td>{product.category}</td>
                   <td>₹{product.price.toLocaleString()}</td>
                   <td>{product.material}</td>
+                  <td>{product.stock ?? 0}</td>
                   <td className={styles.tableActions}>
                     <Link href={`/admin/products/${product.id}/edit`} className={styles.editBtn}>Edit</Link>
                     <button onClick={() => handleDelete(product.id)} className={styles.deleteBtn}>Delete</button>

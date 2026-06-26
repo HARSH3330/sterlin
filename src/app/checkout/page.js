@@ -23,6 +23,7 @@ export default function CheckoutPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -37,10 +38,27 @@ export default function CheckoutPage() {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
+  const validateCart = () => {
+    if (items.length === 0) return "Your bag is empty.";
+    const unavailable = items.find((item) => Number(item.stock ?? 1) <= 0);
+    if (unavailable) return `${unavailable.name} is out of stock.`;
+    const overStock = items.find((item) => item.quantity > Number(item.stock ?? 999));
+    if (overStock) return `Only ${overStock.stock} left for ${overStock.name}.`;
+    return "";
+  };
+
   const handlePayment = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError("");
+    setNotice("");
+
+    const cartError = validateCart();
+    if (cartError) {
+      setError(cartError);
+      setLoading(false);
+      return;
+    }
 
     try {
       const orderRes = await fetch("/api/payment/create-order", {
@@ -50,7 +68,31 @@ export default function CheckoutPage() {
       });
 
       if (!orderRes.ok) throw new Error("Failed to create payment order");
-      const { orderId, amount, currency } = await orderRes.json();
+      const { orderId, amount, currency, mock } = await orderRes.json();
+
+      if (mock) {
+        const mockRes = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address: formData,
+            items,
+            total: getTotal(),
+          }),
+        });
+
+        const mockData = await mockRes.json();
+        if (!mockRes.ok) throw new Error(mockData.error || "Failed to place test order");
+
+        clearCart();
+        setNotice("Test order placed without payment gateway.");
+        router.push("/order-success");
+        return;
+      }
+
+      if (!window.Razorpay) {
+        throw new Error("Payment script is still loading. Please try again.");
+      }
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -77,7 +119,8 @@ export default function CheckoutPage() {
             clearCart();
             router.push("/order-success");
           } else {
-            setError("Payment verification failed. Please contact support.");
+            const data = await verifyRes.json().catch(() => ({}));
+            setError(data.error || "Payment verification failed. Please contact support.");
           }
         },
         prefill: {
@@ -101,6 +144,7 @@ export default function CheckoutPage() {
     <div className={styles.container}>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <h1 className={styles.title}>Secure Checkout</h1>
+      {notice && <p className={styles.notice}>{notice}</p>}
 
       <div className={styles.layout}>
         <div className={styles.shipping}>
@@ -140,7 +184,7 @@ export default function CheckoutPage() {
             {error && <p className={styles.error}>{error}</p>}
 
             <button type="submit" className={styles.payBtn} disabled={loading}>
-              {loading ? "Initializing payment..." : `Pay Rs. ${getTotal().toLocaleString()}`}
+              {loading ? "Placing order..." : `Place Order - Rs. ${getTotal().toLocaleString()}`}
             </button>
           </form>
         </div>

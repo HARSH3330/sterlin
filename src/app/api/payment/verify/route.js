@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { getDb } from '@/lib/db';
 import { getAuthUser } from '@/lib/auth';
+import { calculateOrderTotal, createOrderRecord, normalizeOrderItems } from '@/lib/orders';
 
 export async function POST(request) {
   try {
@@ -24,14 +24,12 @@ export async function POST(request) {
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
       return NextResponse.json({ error: 'Missing payment verification details' }, { status: 400 });
     }
-    if (!Array.isArray(items) || items.length === 0) {
+    const normalizedItems = normalizeOrderItems(items);
+    if (normalizedItems.length === 0) {
       return NextResponse.json({ error: 'Order has no items' }, { status: 400 });
     }
 
-    const computedTotal = items.reduce(
-      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
-      0
-    );
+    const computedTotal = calculateOrderTotal(normalizedItems);
     if (!Number.isFinite(computedTotal) || Math.abs(computedTotal - Number(total)) > 0.01) {
       return NextResponse.json({ error: 'Order total mismatch' }, { status: 400 });
     }
@@ -45,24 +43,21 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 });
     }
 
-    // 2. Save order to database
-    const db = getDb();
-    
-    const orderRecord = await db.order.create({
-      data: {
-        userId: user.id,
-        items: JSON.stringify(items),
-        total,
-        status: 'paid',
-        address: JSON.stringify(address),
-        paymentId: razorpay_payment_id,
-        razorpayOrderId: razorpay_order_id,
-      }
+    const result = await createOrderRecord({
+      user,
+      items: normalizedItems,
+      total,
+      address,
+      status: 'paid',
+      paymentId: razorpay_payment_id,
+      razorpayOrderId: razorpay_order_id,
     });
-    
-    const orderId = orderRecord.id;
 
-    return NextResponse.json({ success: true, orderId });
+    if (result.error) {
+      return NextResponse.json({ error: result.error }, { status: result.status || 500 });
+    }
+
+    return NextResponse.json({ success: true, orderId: result.orderId });
   } catch (error) {
     console.error('Payment verification failed:', error);
     return NextResponse.json(

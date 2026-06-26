@@ -10,9 +10,8 @@ export async function DELETE(request, { params }) {
     const { id } = await params;
     const db = getDb();
 
-    await db.product.delete({
-      where: { id }
-    });
+    await db.wishlist.deleteMany({ where: { productId: id } });
+    await db.product.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -50,6 +49,7 @@ export async function PUT(request, { params }) {
         description: data.description.trim(),
         price,
         category: data.category,
+        subcategory: data.subcategory || '',
         gender: data.gender,
         material: data.material,
         featured: Boolean(data.featured),

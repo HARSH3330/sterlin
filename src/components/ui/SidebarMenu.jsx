@@ -132,7 +132,7 @@ export default function SidebarMenu({ isOpen, onClose }) {
                     >
                       {item.label}
                       <span className={styles.icon}>
-                        {openItems[i] ? "−" : "+"}
+                        {openItems[i] ? "-" : "+"}
                       </span>
                     </button>
                     

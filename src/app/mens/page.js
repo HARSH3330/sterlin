@@ -34,7 +34,7 @@ function MensPageContent() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Men's Collection</h1>
+        <h1 className={styles.title}>Men&apos;s Collection</h1>
         <p className={styles.subtitle}>Rugged, refined, and distinctly bold.</p>
       </header>
       <div className={styles.main}>

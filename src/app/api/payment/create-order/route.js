@@ -9,25 +9,26 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Please sign in before checkout' }, { status: 401 });
     }
 
-    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-      console.error("Missing Razorpay environment variables");
-      return NextResponse.json(
-        { error: 'Payment gateway configuration error' },
-        { status: 500 }
-      );
-    }
-
-    const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
-    });
-
     const { amount } = await request.json();
     const numericAmount = Number(amount);
 
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
       return NextResponse.json({ error: 'Invalid checkout amount' }, { status: 400 });
     }
+
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      return NextResponse.json({
+        mock: true,
+        orderId: `mock_order_${Date.now()}`,
+        amount: Math.round(numericAmount * 100),
+        currency: 'INR',
+      });
+    }
+
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
 
     const options = {
       amount: Math.round(numericAmount * 100), // Razorpay expects paise

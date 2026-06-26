@@ -18,7 +18,7 @@ export default function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
     fetchUser();
   }, [fetchUser]);
 
@@ -33,8 +33,8 @@ export default function Navbar() {
 
         <div className={styles.links}>
           <Link href="/bestsellers">BESTSELLERS</Link>
-          <Link href="/womens">WOMEN'S</Link>
-          <Link href="/mens">MEN'S</Link>
+          <Link href="/womens">WOMEN&apos;S</Link>
+          <Link href="/mens">MEN&apos;S</Link>
           <Link href="/shop">SHOP ALL</Link>
         </div>
 

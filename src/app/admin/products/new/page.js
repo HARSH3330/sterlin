@@ -15,6 +15,7 @@ export default function AddProductPage() {
     category: 'Rings',
     material: 'Sterling Silver',
     gender: 'women',
+    stock: '50',
     featured: false,
   });
 
@@ -28,6 +29,7 @@ export default function AddProductPage() {
     const payload = {
       ...formData,
       price: parseFloat(formData.price),
+      stock: parseInt(formData.stock, 10),
       featured: formData.featured ? 1 : 0
     };
 
@@ -98,6 +100,16 @@ export default function AddProductPage() {
           </div>
         </div>
         <div className={styles.row}>
+          <div className={styles.formGroup}>
+            <label>Stock Quantity</label>
+            <input
+              type="number"
+              min="0"
+              required
+              value={formData.stock}
+              onChange={e => setFormData({...formData, stock: e.target.value})}
+            />
+          </div>
            <div className={styles.formGroup}>
             <label>Material</label>
              <select 

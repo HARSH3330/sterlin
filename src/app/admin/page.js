@@ -1,18 +1,29 @@
 "use client";
 
-import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styles from './admin.module.css';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ products: 0, orders: 0, revenue: 0 });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app we'd fetch these from an API
-    setLoading(false);
+    async function fetchStats() {
+      try {
+        const [productsRes, ordersRes] = await Promise.all([
+          fetch('/api/admin/products'),
+          fetch('/api/admin/orders'),
+        ]);
+        const products = productsRes.ok ? await productsRes.json() : [];
+        const orders = ordersRes.ok ? await ordersRes.json() : [];
+        const revenue = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+        setStats({ products: products.length, orders: orders.length, revenue });
+      } catch {
+        setStats({ products: 0, orders: 0, revenue: 0 });
+      }
+    }
+
+    fetchStats();
   }, []);
 
   return (
@@ -28,15 +39,15 @@ export default function AdminDashboard() {
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <h3>Total Products</h3>
-          <p>34</p>
+          <p>{stats.products}</p>
         </div>
         <div className={styles.statCard}>
           <h3>Orders</h3>
-          <p>12</p>
+          <p>{stats.orders}</p>
         </div>
         <div className={styles.statCard}>
           <h3>Revenue</h3>
-          <p>₹1,45,000</p>
+          <p>Rs. {stats.revenue.toLocaleString()}</p>
         </div>
       </div>
 

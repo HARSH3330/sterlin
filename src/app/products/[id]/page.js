@@ -32,7 +32,7 @@ export default function ProductDetail({ params }) {
   }, [id]);
 
   const handleAdd = () => {
-    if (!product) return;
+    if (!product || Number(product.stock ?? 0) <= 0) return;
     addItem(product);
     setAdded(true);
     toggleCart();
@@ -51,6 +51,7 @@ export default function ProductDetail({ params }) {
   if (!product) return <div className={styles.loading}>Loading...</div>;
 
   const image = Array.isArray(product.images) ? product.images[0] : null;
+  const inStock = Number(product.stock ?? 0) > 0;
 
   return (
     <div className={styles.container}>
@@ -70,10 +71,13 @@ export default function ProductDetail({ params }) {
         <p className={styles.category}>{product.category} / {product.material}</p>
         <h1 className={styles.title}>{product.name}</h1>
         <p className={styles.price}>Rs. {product.price.toLocaleString()}</p>
+        <p className={inStock ? styles.stock : styles.outOfStock}>
+          {inStock ? `${product.stock} in stock` : "Out of stock"}
+        </p>
         <p className={styles.description}>{product.description}</p>
 
-        <button className={`${styles.addToCart} ${added ? styles.added : ""}`} onClick={handleAdd}>
-          {added ? "Added" : "Add to Cart"}
+        <button className={`${styles.addToCart} ${added ? styles.added : ""}`} onClick={handleAdd} disabled={!inStock}>
+          {!inStock ? "Out of Stock" : added ? "Added" : "Add to Cart"}
         </button>
 
         <div className={styles.details}>

@@ -9,11 +9,14 @@ export const useCart = create(
       toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
       addItem: (product) => {
         set((state) => {
+          const stock = Number(product.stock ?? 999);
+          if (stock <= 0) return state;
+
           const existingItem = state.items.find((item) => item.id === product.id);
           if (existingItem) {
             return {
               items: state.items.map((item) =>
-                item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                item.id === product.id ? { ...item, quantity: Math.min(item.quantity + 1, stock) } : item
               ),
             };
           }
@@ -33,7 +36,7 @@ export const useCart = create(
         } else {
           set((state) => ({
             items: state.items.map((item) =>
-              item.id === productId ? { ...item, quantity } : item
+              item.id === productId ? { ...item, quantity: Math.min(quantity, Number(item.stock ?? 999)) } : item
             ),
           }));
         }

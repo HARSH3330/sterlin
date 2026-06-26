@@ -17,7 +17,7 @@ export default function AboutPage() {
           <br />since 1954
         </h1>
         <p className={styles.subtitle}>
-          From our first workshop to the world's finest jewellery houses — our
+          From our first workshop to the world&apos;s finest jewellery houses - our
           passion for the art of adornment has never wavered.
         </p>
       </section>
@@ -34,7 +34,7 @@ export default function AboutPage() {
               their lifetimes of skill into every ring, bracelet, and pendant.
             </p>
             <p className={styles.body}>
-              Today, our collections travel the globe — but our ethos remains rooted in
+              Today, our collections travel the globe - but our ethos remains rooted in
               the handcraft traditions of our founding workshop. Every piece carries a
               certificate of authenticity and a lifetime guarantee.
             </p>
@@ -61,7 +61,7 @@ export default function AboutPage() {
             {
               icon: "⟡",
               title: "Master Craftsmanship",
-              body: "Each piece is handmade by artisans with decades of experience. No mass production, no shortcuts — only precision.",
+              body: "Each piece is handmade by artisans with decades of experience. No mass production, no shortcuts - only precision.",
             },
             {
               icon: "◇",

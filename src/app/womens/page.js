@@ -34,7 +34,7 @@ function WomensPageContent() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Women's Collection</h1>
+        <h1 className={styles.title}>Women&apos;s Collection</h1>
         <p className={styles.subtitle}>Timeless elegance and celestial-inspired details.</p>
       </header>
       <div className={styles.main}>

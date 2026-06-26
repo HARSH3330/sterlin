@@ -36,7 +36,7 @@ export default function AccountPage() {
           <div className={styles.ordersList}>
             {loading ? <p>Loading orders...</p> : orders.length === 0 ? (
                <div className={styles.empty}>
-                 <p>You haven't placed any orders yet.</p>
+                 <p>You haven&apos;t placed any orders yet.</p>
                  <Link href="/shop" className={styles.shopBtn}>Explore Collection</Link>
                </div>
             ) : (

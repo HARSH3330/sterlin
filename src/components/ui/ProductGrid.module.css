@@ -159,6 +159,13 @@
   color: #ffffff;
 }
 
+.addToCart:disabled {
+  cursor: not-allowed;
+  border-color: #d6d6d6;
+  background: #f1f1f1;
+  color: #8a8a8a;
+}
+
 .skeletonCard {
   display: flex;
   flex-direction: column;

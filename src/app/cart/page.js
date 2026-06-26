@@ -39,7 +39,7 @@ export default function CartPage() {
                   <h3 className={styles.itemName}>{item.name}</h3>
                   <p className={styles.itemMaterial}>{item.material}</p>
                   <div className={styles.controls}>
-                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} aria-label="Decrease quantity">−</button>
+                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} aria-label="Decrease quantity">-</button>
                     <span>{item.quantity}</span>
                     <button onClick={() => updateQuantity(item.id, item.quantity + 1)} aria-label="Increase quantity">+</button>
                   </div>

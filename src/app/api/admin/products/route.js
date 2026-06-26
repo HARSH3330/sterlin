@@ -2,6 +2,26 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 
+export async function GET() {
+  try {
+    const { response } = await requireAdmin();
+    if (response) return response;
+
+    const db = getDb();
+    const products = await db.product.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return NextResponse.json(products.map((product) => ({
+      ...product,
+      images: JSON.parse(product.images || '[]'),
+    })));
+  } catch (error) {
+    console.error('Failed to fetch admin products:', error);
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   try {
     const { response } = await requireAdmin();

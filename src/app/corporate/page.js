@@ -42,7 +42,7 @@ export default function CorporatePage() {
         </div>
 
         <div className={styles.emptyState}>
-          <h3>Let's create something together</h3>
+          <h3>Let&apos;s create something together</h3>
           <p>
             Contact our gifting team to discuss your requirements and get a bespoke quote within 48 hours.
           </p>

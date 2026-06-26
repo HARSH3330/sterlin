@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Brands | Sterly",
-  description: "Discover the world's finest jewellery brands, curated exclusively by Sterly.",
+  description: "Discover the world&apos;s finest jewellery brands, curated exclusively by Sterly.",
 };
 
 const brands = [
@@ -19,7 +19,7 @@ const brands = [
     origin: "Paris, France",
     specialty: "Diamond Cutting",
     tag: "Iconic",
-    desc: "A Parisian house celebrated for revolutionary facet geometries. Maison Eclat diamonds catch light in ways never seen before — a result of three generations of diamond expertise.",
+    desc: "A Parisian house celebrated for revolutionary facet geometries. Maison Eclat diamonds catch light in ways never seen before - a result of three generations of diamond expertise.",
   },
   {
     name: "Riva Gioielli",
@@ -40,7 +40,7 @@ const brands = [
     origin: "Stockholm, Sweden",
     specialty: "Minimalist Gold",
     tag: "Modern",
-    desc: "Scandinavian precision meets luxury materials. Frost & Lux are known for their architectural forms and negative space — jewellery as sculpture.",
+    desc: "Scandinavian precision meets luxury materials. Frost & Lux are known for their architectural forms and negative space - jewellery as sculpture.",
   },
   {
     name: "Caldera Studio",
@@ -60,7 +60,7 @@ export default function BrandsPage() {
           The <span className="font-accent text-gold">Brands</span>
         </h1>
         <p className={styles.subtitle}>
-          We partner exclusively with the world's finest ateliers — each selected
+          We partner exclusively with the world&apos;s finest ateliers - each selected
           for their uncompromising craft and unique heritage.
         </p>
       </header>

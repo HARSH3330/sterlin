@@ -45,6 +45,7 @@ export default function ProductGrid({ products, loading }) {
       {products.map((product) => {
         const image = Array.isArray(product.images) ? product.images[0] : null;
         const isWishlisted = wishlistItems.some((item) => item.id === product.id);
+        const inStock = Number(product.stock ?? 0) > 0;
 
         return (
           <div key={product.id} className={styles.productCard}>
@@ -89,12 +90,14 @@ export default function ProductGrid({ products, loading }) {
               </div>
               <button
                 className={styles.addToCart}
+                disabled={!inStock}
                 onClick={() => {
+                  if (!inStock) return;
                   addItem(product);
                   toggleCart();
                 }}
               >
-                Add
+                {inStock ? "Add" : "Sold"}
               </button>
             </div>
           </div>

@@ -11,7 +11,7 @@ export default function CartDrawer() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
 
   if (!mounted) return null;
@@ -25,7 +25,7 @@ export default function CartDrawer() {
             <p className={styles.kicker}>Bag</p>
             <h2>Your Cart</h2>
           </div>
-          <button onClick={toggleCart} className={styles.closeBtn} aria-label="Close cart">×</button>
+          <button onClick={toggleCart} className={styles.closeBtn} aria-label="Close cart">x</button>
         </div>
 
         <div className={styles.itemsList}>
@@ -53,7 +53,7 @@ export default function CartDrawer() {
                     <h4>{item.name}</h4>
                     <p className={styles.material}>{item.material}</p>
                     <div className={styles.quantityControls}>
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} aria-label="Decrease quantity">−</button>
+                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} aria-label="Decrease quantity">-</button>
                       <span>{item.quantity}</span>
                       <button onClick={() => updateQuantity(item.id, item.quantity + 1)} aria-label="Increase quantity">+</button>
                     </div>
