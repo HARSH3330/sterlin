@@ -1,8 +1,7 @@
 "use client";
 
-import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import styles from '../../admin.module.css';
 
@@ -16,78 +15,96 @@ export default function AddProductPage() {
     material: 'Sterling Silver',
     gender: 'women',
     stock: '50',
+    imageUrl: '',
     featured: false,
   });
-
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const updateField = (field, value) => setFormData((current) => ({ ...current, [field]: value }));
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setLoading(true);
-    
-    // Convert price to number and featured to integer (0 or 1)
+
+    const imageUrl = formData.imageUrl.trim();
     const payload = {
-      ...formData,
+      name: formData.name,
+      description: formData.description,
       price: parseFloat(formData.price),
+      category: formData.category,
+      material: formData.material,
+      gender: formData.gender,
       stock: parseInt(formData.stock, 10),
-      featured: formData.featured ? 1 : 0
+      images: imageUrl ? [imageUrl] : [],
+      featured: formData.featured,
     };
 
     const res = await fetch('/api/admin/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (res.ok) {
       router.push('/admin/products');
     } else {
-      alert('Failed to save product');
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to save product');
     }
+
     setLoading(false);
   };
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>New Product</h1>
+        <div>
+          <p className={styles.kicker}>Inventory</p>
+          <h1>New Product</h1>
+        </div>
         <Link href="/admin/products" className={styles.navBtn}>Cancel</Link>
       </header>
 
       <form onSubmit={handleSubmit} className={styles.formCard}>
+        <div className={styles.formIntro}>
+          <p className={styles.kicker}>Product Details</p>
+          <p>Add a jewellery item with clear pricing, stock and an image path.</p>
+        </div>
+
         <div className={styles.formGroup}>
           <label>Product Name</label>
-          <input 
-            required 
-            value={formData.name} 
-            onChange={e => setFormData({...formData, name: e.target.value})} 
-          />
+          <input required value={formData.name} onChange={(event) => updateField('name', event.target.value)} />
         </div>
+
         <div className={styles.formGroup}>
           <label>Description</label>
-          <textarea 
-            required 
-            rows="5"
-            value={formData.description} 
-            onChange={e => setFormData({...formData, description: e.target.value})} 
+          <textarea required rows="5" value={formData.description} onChange={(event) => updateField('description', event.target.value)} />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>Product Image URL or Path</label>
+          <input
+            value={formData.imageUrl}
+            placeholder="/images/products/ring/ring_001.jpg"
+            onChange={(event) => updateField('imageUrl', event.target.value)}
           />
         </div>
+
         <div className={styles.row}>
           <div className={styles.formGroup}>
-            <label>Price (₹)</label>
-            <input 
-              type="number" 
-              required 
-              value={formData.price} 
-              onChange={e => setFormData({...formData, price: e.target.value})} 
-            />
+            <label>Price (Rs.)</label>
+            <input type="number" min="1" required value={formData.price} onChange={(event) => updateField('price', event.target.value)} />
           </div>
           <div className={styles.formGroup}>
+            <label>Stock Quantity</label>
+            <input type="number" min="0" required value={formData.stock} onChange={(event) => updateField('stock', event.target.value)} />
+          </div>
+        </div>
+
+        <div className={styles.row}>
+          <div className={styles.formGroup}>
             <label>Category</label>
-             <select 
-              value={formData.category} 
-              onChange={e => setFormData({...formData, category: e.target.value})}
-            >
+            <select value={formData.category} onChange={(event) => updateField('category', event.target.value)}>
               <option>Rings</option>
               <option>Earrings</option>
               <option>Necklaces</option>
@@ -98,36 +115,19 @@ export default function AddProductPage() {
               <option>Gifting</option>
             </select>
           </div>
-        </div>
-        <div className={styles.row}>
           <div className={styles.formGroup}>
-            <label>Stock Quantity</label>
-            <input
-              type="number"
-              min="0"
-              required
-              value={formData.stock}
-              onChange={e => setFormData({...formData, stock: e.target.value})}
-            />
-          </div>
-           <div className={styles.formGroup}>
             <label>Material</label>
-             <select 
-              value={formData.material} 
-              onChange={e => setFormData({...formData, material: e.target.value})}
-            >
+            <select value={formData.material} onChange={(event) => updateField('material', event.target.value)}>
+              <option>Fashion Jewellery</option>
               <option>Sterling Silver</option>
               <option>Mixed Metals</option>
               <option>Gold Plated</option>
               <option>18K Solid Gold</option>
             </select>
           </div>
-           <div className={styles.formGroup}>
+          <div className={styles.formGroup}>
             <label>Gender</label>
-             <select 
-              value={formData.gender} 
-              onChange={e => setFormData({...formData, gender: e.target.value})}
-            >
+            <select value={formData.gender} onChange={(event) => updateField('gender', event.target.value)}>
               <option value="women">Women</option>
               <option value="men">Men</option>
               <option value="unisex">Unisex</option>
@@ -136,16 +136,10 @@ export default function AddProductPage() {
           </div>
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.checkboxLabel}>
-            <input 
-              type="checkbox" 
-              checked={formData.featured} 
-              onChange={e => setFormData({...formData, featured: e.target.checked})} 
-            />
-            Featured Product (Show on Homepage)
-          </label>
-        </div>
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" checked={formData.featured} onChange={(event) => updateField('featured', event.target.checked)} />
+          Featured Product
+        </label>
 
         <button type="submit" className={styles.primaryBtn} disabled={loading}>
           {loading ? 'Creating...' : 'Create Product'}

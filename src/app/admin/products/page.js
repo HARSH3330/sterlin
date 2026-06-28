@@ -11,7 +11,7 @@ export default function AdminProductsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/admin/products')
+    fetch('/api/products')
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to load products');
@@ -95,7 +95,14 @@ export default function AdminProductsPage() {
 
                   <div className={styles.cardActions}>
                     <Link href={`/admin/products/${product.id}/edit`} className={styles.editBtn}>Edit</Link>
-                    <button onClick={() => handleDelete(product.id)} className={styles.deleteBtn}>Delete</button>
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className={styles.deleteBtn}
+                      disabled={product.id.startsWith('catalog-')}
+                      title={product.id.startsWith('catalog-') ? 'Catalog image products are managed from the image folders.' : 'Delete product'}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </article>
               );

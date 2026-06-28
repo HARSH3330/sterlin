@@ -42,9 +42,9 @@ export async function PUT(request, { params }) {
 
     const db = getDb();
 
-    await db.product.update({
+    await db.product.upsert({
       where: { id },
-      data: {
+      update: {
         name: data.name.trim(),
         description: data.description.trim(),
         price,
@@ -57,7 +57,20 @@ export async function PUT(request, { params }) {
           images: Array.isArray(data.images) ? JSON.stringify(data.images) : data.images,
         }),
         ...(stock !== undefined && { stock }),
-      }
+      },
+      create: {
+        id,
+        name: data.name.trim(),
+        description: data.description.trim(),
+        price,
+        category: data.category,
+        subcategory: data.subcategory || '',
+        gender: data.gender || 'unisex',
+        material: data.material,
+        featured: Boolean(data.featured),
+        images: Array.isArray(data.images) ? JSON.stringify(data.images) : data.images || '[]',
+        stock: stock ?? 50,
+      },
     });
 
     return NextResponse.json({ success: true });

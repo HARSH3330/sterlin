@@ -11,7 +11,7 @@ export default function AdminDashboard() {
     async function fetchStats() {
       try {
         const [productsRes, ordersRes] = await Promise.all([
-          fetch('/api/admin/products'),
+          fetch('/api/products'),
           fetch('/api/admin/orders'),
         ]);
         const products = productsRes.ok ? await productsRes.json() : [];
