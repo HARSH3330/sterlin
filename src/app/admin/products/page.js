@@ -11,7 +11,7 @@ export default function AdminProductsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/products')
+    fetch('/api/products', { cache: 'no-store' })
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to load products');

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { filterCatalogProducts, getCatalogProducts } from "@/lib/catalog";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -60,8 +62,8 @@ export async function GET(request) {
 
     const existingIds = new Set(dbProducts.map((product) => product.id));
     const merged = [
-      ...catalogProducts.filter((product) => !existingIds.has(product.id)),
       ...dbProducts,
+      ...catalogProducts.filter((product) => !existingIds.has(product.id)),
     ];
 
     return NextResponse.json(merged);

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const { response } = await requireAdmin();
