@@ -68,7 +68,7 @@ export default function CheckoutPage() {
       });
 
       if (!orderRes.ok) throw new Error("Failed to create payment order");
-      const { orderId, amount, currency, mock } = await orderRes.json();
+      const { orderId, amount, currency, mock, key } = await orderRes.json();
 
       if (mock) {
         const mockRes = await fetch("/api/orders", {
@@ -85,7 +85,7 @@ export default function CheckoutPage() {
         if (!mockRes.ok) throw new Error(mockData.error || "Failed to place test order");
 
         clearCart();
-        setNotice("Test order placed without payment gateway.");
+        setNotice(mockData.persisted ? "Test order placed." : "Test order placed temporarily. Connect the database to persist orders.");
         router.push("/order-success");
         return;
       }
@@ -95,7 +95,7 @@ export default function CheckoutPage() {
       }
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key,
         amount,
         currency,
         name: "Sterly Jewellery",

@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { getCatalogProductById } from "@/lib/catalog";
 import { isDatabaseUnavailable } from "@/lib/fallbackAuthStore";
 import { hashPassword } from "@/lib/auth";
+import { addFallbackOrder } from "@/lib/fallbackOrders";
 
 export function normalizeOrderItems(items) {
   if (!Array.isArray(items)) return [];
@@ -146,7 +147,19 @@ export async function createOrderRecord({ user, items, total, address, status = 
   } catch (error) {
     if (isDatabaseUnavailable(error)) {
       console.error("Order database unavailable, returning temporary order:", error.message);
-      return { orderId: `temp-${randomUUID()}`, persisted: false };
+      const fallbackOrder = addFallbackOrder({
+        id: `temp-${randomUUID()}`,
+        userId: user.id,
+        items: JSON.stringify(normalizedItems),
+        total: computedTotal,
+        status,
+        address: JSON.stringify(addressResult.address),
+        paymentId,
+        razorpayOrderId,
+        createdAt: new Date().toISOString(),
+      });
+
+      return { orderId: fallbackOrder.id, persisted: false };
     }
 
     return { error: error.message || "Failed to save order.", status: 500 };

@@ -16,7 +16,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid checkout amount' }, { status: 400 });
     }
 
-    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
+
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET || !razorpayKeyId) {
       return NextResponse.json({
         mock: true,
         orderId: `mock_order_${Date.now()}`,
@@ -42,6 +44,7 @@ export async function POST(request) {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
+      key: razorpayKeyId,
     });
   } catch (error) {
     console.error('Razorpay order creation failed:', error);
