@@ -1,9 +1,9 @@
 .overlay {
   position: fixed;
-  top: 0;
+  top: 36px;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 36px);
   background-color: rgba(26, 20, 16, 0.35);
   backdrop-filter: blur(3px);
   opacity: 0;
@@ -19,11 +19,11 @@
 
 .drawer {
   position: fixed;
-  top: 0;
+  top: 36px;
   left: -420px;
   width: 420px;
   max-width: 88vw;
-  height: 100vh;
+  height: calc(100vh - 36px);
   background-color: #F5F0E8;
   color: var(--text-primary);
   z-index: 1000;
